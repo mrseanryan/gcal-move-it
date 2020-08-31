@@ -45,12 +45,16 @@ python gcal-move-it.py
 Usage: gcal-move-it.py <source month 1..12> [options]
 
 The options are:
+[-b blacklist]
 [-d dryrun Perform a dry run, without actually modifying the calendar]
 [-h help]
 [-t targetdate]
 [-w whitelist]
 
-Example: gcal-move-it.py 1 -d -w urgent;important
+Examples:
+gcal-move-it.py 1
+gcal-move-it.py 1 -w urgent;important
+gcal-move-it.py 1 -b "cancelled;^done" -d -w urgent;important
 ```
 
 Try a dry run, that does not modify your calendar:

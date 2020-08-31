@@ -16,7 +16,10 @@ The options are:
 [-t targetdate]
 [-w whitelist]
 
-Example: gcal-move-it.py 1 -b "cancelled;^done" -d -w urgent;important
+Examples:
+gcal-move-it.py 1
+gcal-move-it.py 1 -w urgent;important
+gcal-move-it.py 1 -b "cancelled;^done" -d -w urgent;important
 """
 
 from __future__ import print_function
