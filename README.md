@@ -29,3 +29,27 @@ pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-
 ```
 pip install Babel
 ```
+
+# use
+
+See the built-in help:
+
+```
+python gcal-move-it.py
+```
+
+Try a dry run, that does not modify your calendar:
+
+```
+python gcal-move-it.py 1 -d
+```
+
+Move events from March to the next month (April):
+
+```
+python gcal-move-it.py 3
+```
+
+# license
+
+License is [MIT](./LICENSE)
