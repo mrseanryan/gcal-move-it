@@ -50,6 +50,13 @@ Move events from March to the next month (April):
 python gcal-move-it.py 3
 ```
 
+# references
+
+[Google Calendar API](https://developers.google.com/calendar/v3/reference/events/list)
+[Google Calendar API - Concepts](https://developers.google.com/calendar/concepts)
+[Quickstart example](https://developers.google.com/calendar/quickstart/python)
+[Python Babel library (used for dates)](http://babel.pocoo.org/en/latest/)
+
 # license
 
 License is [MIT](./LICENSE)
