@@ -5,6 +5,7 @@ A command line tool to move events from one month to another, in a Google Calend
 # setup
 
 1. Get the credentials file
+
    Use the [Google Console](https://console.cloud.google.com/) to create a new project, and add the **Google Calendar API** to that project.
 
    To create the credentials file, add a service account. Download the key in JSON format (the UI can be tricky to use!).
@@ -72,9 +73,13 @@ python gcal-move-it.py 3
 # references
 
 [Google Calendar API](https://developers.google.com/calendar/v3/reference/events/list)
+
 [Google Calendar API - Concepts](https://developers.google.com/calendar/concepts)
+
 [Google Calendar API - Python client API](http://googleapis.github.io/google-api-python-client/docs/dyn/calendar_v3.events.html)
+
 [Quickstart example](https://developers.google.com/calendar/quickstart/python)
+
 [Python Babel library (used for dates)](http://babel.pocoo.org/en/latest/)
 
 # license
