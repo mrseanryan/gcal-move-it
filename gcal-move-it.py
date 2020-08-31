@@ -63,7 +63,7 @@ def parse_year_month_day(date_string):
 def is_multi_day(event):
     if ('date' in event['start'] and
             'date' in event['end']
-            ):
+        ):
         start_date = parse_year_month_day(event['start']['date'])
         end_date = parse_year_month_day(event['end']['date'])
         delta = end_date - start_date
@@ -104,7 +104,7 @@ def date_to_string(date):
     return format_date(date, locale='en')
 
 
-def main():
+def connect_to_calendar_service():
     creds = None
     # The file token.pickle stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
@@ -124,8 +124,10 @@ def main():
         with open('token.pickle', 'wb') as token:
             pickle.dump(creds, token)
 
-    service = build('calendar', 'v3', credentials=creds)
+    return build('calendar', 'v3', credentials=creds)
 
+
+def get_events_from_service(service):
     # Call the Calendar API
     #
     # Get the events for the source month, that could be moved
@@ -157,13 +159,10 @@ def main():
                                           # orderBy='startTime'
                                           ).execute()
     events = events_result.get('items', [])
+    return events
 
-    # xxx
-    if not events:
-        print('No upcoming events found.')
 
-    filtered_events = filter(filter_event, events)
-
+def process_events(filtered_events):
     for event in filtered_events:
         # print ("xxx " + event['summary'])
         # import pdb
@@ -176,6 +175,19 @@ def main():
     # Xx always to following month
     # Xx following month could be next year!
     # Xx if dest month less days, then use the last day
+
+
+def main():
+    service = connect_to_calendar_service()
+
+    events = get_events_from_service(service)
+
+    if not events:
+        print('No upcoming events found.')
+
+    filtered_events = filter(filter_event, events)
+
+    process_events(filtered_events)
 
 
 if __name__ == '__main__':
