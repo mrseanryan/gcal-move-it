@@ -62,8 +62,8 @@ def parse_year_month_day(date_string):
 
 def is_multi_day(event):
     if ('date' in event['start'] and
-                'date' in event['end']
-            ):
+        'date' in event['end']
+        ):
         start_date = parse_year_month_day(event['start']['date'])
         end_date = parse_year_month_day(event['end']['date'])
         delta = end_date - start_date
@@ -72,20 +72,24 @@ def is_multi_day(event):
     return False
 
 
+def is_in_source_month(event):
+    if ('date' in event['start']):
+        start_date = parse_year_month_day(event['start']['date'])
+        return start_date.month == sourceMonthIndex
+
+    return False
+
+
 def filter_event(event):
     """
-    # Filter the events
+  1 Filter the events
     # - not starting with "k " or "done "
-    # - all-day, for 1 day (so start.date == end.date)
+    # - all-day, for 1 day
     # - not recurring
-    # - not default (blue) color
     """
     if (not 'start' in event):
         return False
     summary = event['summary'].lower()
-    # print ("xxx " + summary)
-    # import pdb
-    # pdb.set_trace()
     return (('start' in event) and  # else is multi-day event, which we skip
             # note: not checking for 'recurringEventId' since if the event was manually moved, then it probably got forgotten, and SHOULD be moved to next month
             not ('recurrence' in event) and
@@ -95,8 +99,9 @@ def filter_event(event):
             not summary.startswith("n/a") and
             summary != "hol" and
             not is_multi_day(event) and
-            not 'dateTime' in event['start']  # a timed event
-            # xxx not in the next month (bug in http request?)
+            not 'dateTime' in event['start'] and  # not a timed event
+            # not in the next month (bug in http request?)
+            is_in_source_month(event)
             )
 
 
@@ -168,18 +173,20 @@ def get_events(service):
 
 
 def process_events(filtered_events):
+    print ("Found " + str(len(filtered_events)) + " events to process")
+
     for event in filtered_events:
-        # print ("xxx " + event['summary'])
+        # To debug, uncomment here:
         # import pdb
         # pdb.set_trace()
         start = event['start'].get('dateTime', event['start'].get('date'))
         print(start, event['summary'])
 
-    # xxx
+    # TODO xxx
     # move the events:
     # Xx always to following month
     # Xx following month could be next year!
-    # Xx if dest month less days, then use the last day
+    # Xx if dest month has less days, then use the last day
 
 
 def main():
