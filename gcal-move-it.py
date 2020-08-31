@@ -10,12 +10,13 @@ Only events that occurred before today are moved.
 Usage: gcal-move-it.py <source month 1..12> [options]
 
 The options are:
+[-b blacklist]
 [-d dryrun Perform a dry run, without actually modifying the calendar]
 [-h help]
 [-t targetdate]
 [-w whitelist]
 
-Example: gcal-move-it.py 1 -d -w urgent;important
+Example: gcal-move-it.py 1 -b "cancelled;^done" -d -w urgent;important
 """
 
 from __future__ import print_function
@@ -47,9 +48,15 @@ def parse_year_month_day(date_string):
     return datetime.datetime.strptime(date_string, '%Y-%m-%d')
 
 
+def split_exlude_empty(text, separator):
+    return filter(None, text.split(separator))
+
+
 # optparse - parse the args
 parser = OptionParser(
     usage='%prog <source month 1..12> [options]')
+parser.add_option('-b', '--blacklist', dest='blacklist', default="",
+                  help="Blacklist: pass only events that do not match any of these ; separated texts. ^ means 'starts with', '=x' means 'exactly matches x'")
 parser.add_option('-d', '--dryrun', dest='is_dry_run', action='store_const',
                   const=True, default=False,
                   help='Perform a dry run: do not modify the calendar')
@@ -63,12 +70,13 @@ if (len(args) != 1):
     usage()
     sys.exit(2)
 
+blacklist = split_exlude_empty(options.blacklist, ';')
 is_dry_run = options.is_dry_run
 sourceMonthIndex = int(args[0])
 target_date = None
 if len(options.target_date) > 0:
     target_date = parse_year_month_day(options.target_date)
-whitelist = options.whitelist.split(';')
+whitelist = split_exlude_empty(options.whitelist, ';')
 
 
 def event_start_date(event):
@@ -77,8 +85,8 @@ def event_start_date(event):
 
 def is_multi_day(event):
     if ('date' in event['start'] and
-        'date' in event['end']
-        ):
+                'date' in event['end']
+            ):
         start_date = event_start_date(event)
         end_date = parse_year_month_day(event['end']['date'])
         delta = end_date - start_date
@@ -93,6 +101,21 @@ def is_in_source_month(event):
         return start_date.month == sourceMonthIndex
 
     return False
+
+
+def matches_blacklist_entry(summary, black):
+    if(black.startswith('^')):
+        return summary.startswith(black[1:])
+    if(black.startswith('=')):
+        return summary == black[1:]
+    return black in summary
+
+
+def summary_passes_blacklist(summary):
+    if (len(blacklist) == 0):
+        return True
+
+    return all(not matches_blacklist_entry(summary, b) for b in blacklist)
 
 
 def summary_passes_whitelist(summary):
@@ -118,12 +141,7 @@ def filter_event(event):
     return (('start' in event) and  # else is multi-day event, which we skip
             # note: not checking for 'recurringEventId' since if the event was manually moved, then it probably got forgotten, and SHOULD be moved to next month
             not ('recurrence' in event) and
-            # TODO move this out as a blacklist option (with a script for these values)
-            not summary.startswith("k ") and
-            not summary.startswith("cancelled ") and
-            not summary.startswith("done ") and
-            not summary.startswith("n/a") and
-            summary != "hol" and
+            summary_passes_blacklist(summary) and
             summary_passes_whitelist(summary) and
             not is_multi_day(event) and
             not 'dateTime' in event['start'] and  # not a timed event
