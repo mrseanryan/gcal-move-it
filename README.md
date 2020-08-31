@@ -41,6 +41,17 @@ See the built-in help:
 python gcal-move-it.py
 ```
 
+```
+Usage: gcal-move-it.py <source month 1..12> [options]
+
+The options are:
+[-d dryrun Perform a dry run, without actually modifying the calendar]
+[-h help]
+[-w whitelist]
+
+Example: gcal-move-it.py 1 -d -w urgent;important
+```
+
 Try a dry run, that does not modify your calendar:
 
 ```
