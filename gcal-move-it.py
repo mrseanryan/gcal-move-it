@@ -23,6 +23,7 @@ from optparse import OptionParser
 import getopt
 import datetime
 from datetime import date
+from dateutil import relativedelta
 import pickle
 import os.path
 import sys
@@ -62,8 +63,8 @@ def parse_year_month_day(date_string):
 
 def is_multi_day(event):
     if ('date' in event['start'] and
-        'date' in event['end']
-        ):
+            'date' in event['end']
+            ):
         start_date = parse_year_month_day(event['start']['date'])
         end_date = parse_year_month_day(event['end']['date'])
         delta = end_date - start_date
@@ -74,7 +75,8 @@ def is_multi_day(event):
 
 def is_in_source_month(event):
     if ('date' in event['start']):
-        start_date = parse_year_month_day(event['start']['date'])
+        start_date = parse_year_month_day(
+            event['start']['date'])  # xxx avoid dupe code?
         return start_date.month == sourceMonthIndex
 
     return False
@@ -149,18 +151,38 @@ def get_events_from_service(service, startOfMonth, maxDate):
     return events
 
 
+def days_in_month(year, month_index):
+    return monthrange(year, month_index)[1]
+
+
+def this_year():
+    return date.today().year
+
+
+def days_source_month():
+    daysInMonth = days_in_month(this_year(), sourceMonthIndex)
+    return daysInMonth
+
+
+def dest_month():
+    return start_of_source_month() + relativedelta.relativedelta(months=1)
+
+
+def start_of_source_month():
+    return date(this_year(), sourceMonthIndex, 1)
+
+
 def get_events(service):
     # Call the Calendar API
     #
     # Get the events for the source month, that could be moved
     # - only past events (not from today)
 
-    thisYear = date.today().year
-    startOfMonth = date(thisYear, sourceMonthIndex, 1)
-    daysInMonth = monthrange(thisYear, sourceMonthIndex)[1]
+    startOfMonth = start_of_source_month()
+    daysInMonth = days_source_month()
 
     # The end of the month is the very start of the following day
-    endOfMonth = date(thisYear, sourceMonthIndex,
+    endOfMonth = date(this_year(), sourceMonthIndex,
                       daysInMonth) + datetime.timedelta(days=1)
 
     startOfToday = date.today()
@@ -172,21 +194,49 @@ def get_events(service):
     return get_events_from_service(service, startOfMonth, maxDate)
 
 
-def process_events(filtered_events):
+def move_event_to_via_service(event, dest_date, service):
+    # xxx
+    xxx = 5455
+
+
+def move_event_to(event, dest_date, service):
+    print("--> " + date_to_string(dest_date))
+    if not is_dry_run:
+        move_event_to_via_service(event, dest_date, service)
+
+
+def move_event(event, dest_month_value, dest_month_days, service):
+    # If dest month has less days, then use the last day
+    source_date = event['start_date_py']
+    dest_day = source_date.day
+    if (source_date.day > dest_month_days):
+        dest_day = dest_month_days
+    dest_date = date(dest_month_value.year, dest_month_value.month, dest_day)
+    move_event_to(event, dest_date, service)
+
+
+def process_events(filtered_events, service):
     print ("Found " + str(len(filtered_events)) + " events to process")
+
+    dest_month_value = dest_month()
+    dest_month_days = days_in_month(
+        dest_month_value.year, dest_month_value.month)
 
     for event in filtered_events:
         # To debug, uncomment here:
         # import pdb
         # pdb.set_trace()
-        start = event['start'].get('dateTime', event['start'].get('date'))
-        print(start, event['summary'])
+        #
+        # Add start date, to simplify processing:
+        event['start_date_py'] = parse_year_month_day(event['start']['date'])
+        #start = event['start'].get('dateTime', event['start'].get('date'))
+        print(date_to_string(event['start_date_py']), event['summary'])
+        move_event(event, dest_month_value, dest_month_days, service)
 
-    # TODO xxx
-    # move the events:
-    # Xx always to following month
-    # Xx following month could be next year!
-    # Xx if dest month has less days, then use the last day
+    if is_dry_run:
+        print ("(dry run) No events were modified")
+    else:
+        print (str(len(filtered_events)) + " events were modified")
 
 
 def main():
@@ -199,7 +249,7 @@ def main():
 
     filtered_events = filter(filter_event, events)
 
-    process_events(filtered_events)
+    process_events(filtered_events, service)
 
 
 if __name__ == '__main__':
