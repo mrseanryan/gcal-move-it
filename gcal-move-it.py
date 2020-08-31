@@ -62,8 +62,8 @@ def parse_year_month_day(date_string):
 
 def is_multi_day(event):
     if ('date' in event['start'] and
-            'date' in event['end']
-        ):
+                'date' in event['end']
+            ):
         start_date = parse_year_month_day(event['start']['date'])
         end_date = parse_year_month_day(event['end']['date'])
         delta = end_date - start_date
@@ -127,7 +127,24 @@ def connect_to_calendar_service():
     return build('calendar', 'v3', credentials=creds)
 
 
-def get_events_from_service(service):
+def get_events_from_service(service, startOfMonth, maxDate):
+    # 'Z' indicates UTC time
+    timeMin = datetime.datetime.combine(
+        startOfMonth, datetime.time()).isoformat() + 'Z'
+    timeMax = datetime.datetime.combine(
+        maxDate, datetime.time()).isoformat() + 'Z'
+
+    events_result = service.events().list(calendarId='primary',
+                                          maxResults=1000,
+                                          timeMin=timeMin, timeMax=timeMax,
+                                          timeZone='utc'
+                                          # orderBy='startTime'
+                                          ).execute()
+    events = events_result.get('items', [])
+    return events
+
+
+def get_events(service):
     # Call the Calendar API
     #
     # Get the events for the source month, that could be moved
@@ -141,25 +158,13 @@ def get_events_from_service(service):
     endOfMonth = date(thisYear, sourceMonthIndex,
                       daysInMonth) + datetime.timedelta(days=1)
 
-    timeMin = datetime.datetime.combine(
-        startOfMonth, datetime.time()).isoformat() + 'Z'
-
     startOfToday = date.today()
-    dateMax = min(endOfMonth, startOfToday)
-    # 'Z' indicates UTC time
-    timeMax = datetime.datetime.combine(
-        dateMax, datetime.time()).isoformat() + 'Z'
+    maxDate = min(endOfMonth, startOfToday)
 
     print('Getting events than can be moved and have date in range: ' +
-          date_to_string(startOfMonth) + ' - ' + date_to_string(dateMax))
-    events_result = service.events().list(calendarId='primary',
-                                          maxResults=1000,
-                                          timeMin=timeMin, timeMax=timeMax,
-                                          timeZone='utc'
-                                          # orderBy='startTime'
-                                          ).execute()
-    events = events_result.get('items', [])
-    return events
+          date_to_string(startOfMonth) + ' - ' + date_to_string(maxDate))
+
+    return get_events_from_service(service, startOfMonth, maxDate)
 
 
 def process_events(filtered_events):
@@ -180,7 +185,7 @@ def process_events(filtered_events):
 def main():
     service = connect_to_calendar_service()
 
-    events = get_events_from_service(service)
+    events = get_events(service)
 
     if not events:
         print('No upcoming events found.')
