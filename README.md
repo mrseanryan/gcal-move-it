@@ -47,6 +47,7 @@ Usage: gcal-move-it.py <source month 1..12> [options]
 The options are:
 [-d dryrun Perform a dry run, without actually modifying the calendar]
 [-h help]
+[-t targetdate]
 [-w whitelist]
 
 Example: gcal-move-it.py 1 -d -w urgent;important

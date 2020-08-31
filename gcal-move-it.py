@@ -12,6 +12,7 @@ Usage: gcal-move-it.py <source month 1..12> [options]
 The options are:
 [-d dryrun Perform a dry run, without actually modifying the calendar]
 [-h help]
+[-t targetdate]
 [-w whitelist]
 
 Example: gcal-move-it.py 1 -d -w urgent;important
@@ -42,12 +43,18 @@ def usage():
     print (__doc__)
 
 
+def parse_year_month_day(date_string):
+    return datetime.datetime.strptime(date_string, '%Y-%m-%d')
+
+
 # optparse - parse the args
 parser = OptionParser(
     usage='%prog <source month 1..12> [options]')
 parser.add_option('-d', '--dryrun', dest='is_dry_run', action='store_const',
                   const=True, default=False,
                   help='Perform a dry run: do not modify the calendar')
+parser.add_option('-t', '--targetdate', dest='target_date', default='',
+                  help='Move to this date (instead of adding 1 month). Format: yyyy-mm-dd')
 parser.add_option('-w', '--whitelist', dest='whitelist', default="",
                   help='Whitelist: pass any events that contain one of these ; separated texts.')
 
@@ -58,11 +65,10 @@ if (len(args) != 1):
 
 is_dry_run = options.is_dry_run
 sourceMonthIndex = int(args[0])
+target_date = None
+if len(options.target_date) > 0:
+    target_date = parse_year_month_day(options.target_date)
 whitelist = options.whitelist.split(';')
-
-
-def parse_year_month_day(date_string):
-    return datetime.datetime.strptime(date_string, '%Y-%m-%d')
 
 
 def event_start_date(event):
@@ -71,7 +77,7 @@ def event_start_date(event):
 
 def is_multi_day(event):
     if ('date' in event['start'] and
-            'date' in event['end']
+        'date' in event['end']
         ):
         start_date = event_start_date(event)
         end_date = parse_year_month_day(event['end']['date'])
@@ -184,6 +190,9 @@ def days_source_month():
 
 
 def dest_month():
+    if (target_date != None):
+        return target_date
+
     return start_of_source_month() + relativedelta.relativedelta(months=1)
 
 
@@ -244,6 +253,9 @@ def move_event(event, dest_month_value, dest_month_days, service):
     if (source_date.day > dest_month_days):
         dest_day = dest_month_days
     dest_date = date(dest_month_value.year, dest_month_value.month, dest_day)
+
+    if (target_date != None):
+        dest_date = target_date
     move_event_to(event, dest_date, service)
 
 
