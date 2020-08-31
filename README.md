@@ -57,6 +57,7 @@ python gcal-move-it.py 3
 
 [Google Calendar API](https://developers.google.com/calendar/v3/reference/events/list)
 [Google Calendar API - Concepts](https://developers.google.com/calendar/concepts)
+[Google Calendar API - Python client API](http://googleapis.github.io/google-api-python-client/docs/dyn/calendar_v3.events.html)
 [Quickstart example](https://developers.google.com/calendar/quickstart/python)
 [Python Babel library (used for dates)](http://babel.pocoo.org/en/latest/)
 

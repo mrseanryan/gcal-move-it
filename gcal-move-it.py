@@ -61,11 +61,15 @@ def parse_year_month_day(date_string):
     return datetime.datetime.strptime(date_string, '%Y-%m-%d')
 
 
+def event_start_date(event):
+    return parse_year_month_day(event['start']['date'])
+
+
 def is_multi_day(event):
     if ('date' in event['start'] and
             'date' in event['end']
-            ):
-        start_date = parse_year_month_day(event['start']['date'])
+        ):
+        start_date = event_start_date(event)
         end_date = parse_year_month_day(event['end']['date'])
         delta = end_date - start_date
         return delta.days > 1  # A whole-day event actually ends on the next day!
@@ -92,6 +96,9 @@ def filter_event(event):
     if (not 'start' in event):
         return False
     summary = event['summary'].lower()
+
+    # TODO xxx bug - if manually move an event back into that month, it is not picked up (bug in http request?)
+
     return (('start' in event) and  # else is multi-day event, which we skip
             # note: not checking for 'recurringEventId' since if the event was manually moved, then it probably got forgotten, and SHOULD be moved to next month
             not ('recurrence' in event) and
@@ -194,9 +201,22 @@ def get_events(service):
     return get_events_from_service(service, startOfMonth, maxDate)
 
 
+def date_to_wire_format(dest_date):
+    return dest_date.strftime('%Y-%m-%d')
+
+
 def move_event_to_via_service(event, dest_date, service):
-    # xxx
-    xxx = 5455
+    startDate = {'date': date_to_wire_format(dest_date)}
+    endDate = {'date': date_to_wire_format(
+        dest_date + datetime.timedelta(days=1))}
+
+    event['start'] = startDate
+    event['end'] = endDate
+
+    service.events().update(calendarId='primary',
+                            eventId=event['id'],
+                            body=event
+                            ).execute()
 
 
 def move_event_to(event, dest_date, service):
@@ -207,7 +227,7 @@ def move_event_to(event, dest_date, service):
 
 def move_event(event, dest_month_value, dest_month_days, service):
     # If dest month has less days, then use the last day
-    source_date = event['start_date_py']
+    source_date = event_start_date(event)
     dest_day = source_date.day
     if (source_date.day > dest_month_days):
         dest_day = dest_month_days
@@ -227,10 +247,7 @@ def process_events(filtered_events, service):
         # import pdb
         # pdb.set_trace()
         #
-        # Add start date, to simplify processing:
-        event['start_date_py'] = parse_year_month_day(event['start']['date'])
-        #start = event['start'].get('dateTime', event['start'].get('date'))
-        print(date_to_string(event['start_date_py']), event['summary'])
+        print(date_to_string(event_start_date(event)), event['summary'])
         move_event(event, dest_month_value, dest_month_days, service)
 
     if is_dry_run:
