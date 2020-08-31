@@ -23,3 +23,9 @@ So the file should be located at: `./credentials.json`
 ```
 pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib
 ```
+
+5. Install dependencies
+
+```
+pip install Babel
+```
