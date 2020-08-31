@@ -12,8 +12,9 @@ Usage: gcal-move-it.py <source month 1..12> [options]
 The options are:
 [-d dryrun Perform a dry run, without actually modifying the calendar]
 [-h help]
+[-w whitelist]
 
-Example: gcal-move-it.py 1 -d
+Example: gcal-move-it.py 1 -d -w urgent;important
 """
 
 from __future__ import print_function
@@ -47,6 +48,8 @@ parser = OptionParser(
 parser.add_option('-d', '--dryrun', dest='is_dry_run', action='store_const',
                   const=True, default=False,
                   help='Perform a dry run: do not modify the calendar')
+parser.add_option('-w', '--whitelist', dest='whitelist', default="",
+                  help='Whitelist: pass any events that contain one of these ; separated texts.')
 
 (options, args) = parser.parse_args()
 if (len(args) != 1):
@@ -55,6 +58,7 @@ if (len(args) != 1):
 
 is_dry_run = options.is_dry_run
 sourceMonthIndex = int(args[0])
+whitelist = options.whitelist.split(';')
 
 
 def parse_year_month_day(date_string):
@@ -67,8 +71,8 @@ def event_start_date(event):
 
 def is_multi_day(event):
     if ('date' in event['start'] and
-            'date' in event['end']
-        ):
+                'date' in event['end']
+            ):
         start_date = event_start_date(event)
         end_date = parse_year_month_day(event['end']['date'])
         delta = end_date - start_date
@@ -84,6 +88,13 @@ def is_in_source_month(event):
         return start_date.month == sourceMonthIndex
 
     return False
+
+
+def summary_passes_whitelist(summary):
+    if (len(whitelist) == 0):
+        return True
+
+    return any(w in summary for w in whitelist)
 
 
 def filter_event(event):
@@ -107,6 +118,7 @@ def filter_event(event):
             not summary.startswith("done ") and
             not summary.startswith("n/a") and
             summary != "hol" and
+            summary_passes_whitelist(summary) and
             not is_multi_day(event) and
             not 'dateTime' in event['start'] and  # not a timed event
             # not in the next month (bug in http request?)
