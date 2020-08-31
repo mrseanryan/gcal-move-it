@@ -5,9 +5,11 @@ A command line tool to move events from one month to another, in a Google Calend
 # setup
 
 1. Get the credentials file
-   Follow the instructions to activate the Google Calendar API, and get a credentials file:
+   Use the [Google Console](https://console.cloud.google.com/) to create a new project, and add the **Google Calendar API** to that project.
 
-https://developers.google.com/calendar/quickstart/python
+   To create the credentials file, add a service account. Download the key in JSON format (the UI can be tricky to use!).
+
+   See the [Google documentation](https://cloud.google.com/docs/authentication/getting-started) for more details.
 
 2. Save the credentials file in this folder
 
