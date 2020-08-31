@@ -2,6 +2,42 @@
 
 A command line tool to move events from one month to another, in a Google Calendar.
 
+# use
+
+See the built-in help:
+
+```
+python gcal-move-it.py
+```
+
+```
+Usage: gcal-move-it.py <source month 1..12> [options]
+
+The options are:
+[-b blacklist - Specify a blacklist to exclude some events]
+[-d dryrun - Perform a dry run, without actually modifying the calendar]
+[-h help]
+[-t targetdate - Specify an exact target date (instead of the default which is 'one month later')]
+[-w whitelist - Specify a whitelist to include only some events]
+
+Examples:
+gcal-move-it.py 1
+gcal-move-it.py 1 -w urgent;important
+gcal-move-it.py 1 -b "cancelled;^done" -d -w urgent;important
+```
+
+Try a dry run, that does not modify your calendar:
+
+```
+python gcal-move-it.py 1 -d
+```
+
+Move events from March to the next month (April):
+
+```
+python gcal-move-it.py 3
+```
+
 # setup
 
 1. Get the credentials file
@@ -32,42 +68,6 @@ pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-
 ```
 pip install Babel
 pip install python-dateutil
-```
-
-# use
-
-See the built-in help:
-
-```
-python gcal-move-it.py
-```
-
-```
-Usage: gcal-move-it.py <source month 1..12> [options]
-
-The options are:
-[-b blacklist]
-[-d dryrun Perform a dry run, without actually modifying the calendar]
-[-h help]
-[-t targetdate]
-[-w whitelist]
-
-Examples:
-gcal-move-it.py 1
-gcal-move-it.py 1 -w urgent;important
-gcal-move-it.py 1 -b "cancelled;^done" -d -w urgent;important
-```
-
-Try a dry run, that does not modify your calendar:
-
-```
-python gcal-move-it.py 1 -d
-```
-
-Move events from March to the next month (April):
-
-```
-python gcal-move-it.py 3
 ```
 
 # references

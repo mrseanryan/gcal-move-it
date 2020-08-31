@@ -10,11 +10,11 @@ Only events that occurred before today are moved.
 Usage: gcal-move-it.py <source month 1..12> [options]
 
 The options are:
-[-b blacklist]
-[-d dryrun Perform a dry run, without actually modifying the calendar]
+[-b blacklist - Specify a blacklist to exclude some events]
+[-d dryrun - Perform a dry run, without actually modifying the calendar]
 [-h help]
-[-t targetdate]
-[-w whitelist]
+[-t targetdate - Specify an exact target date (instead of the default which is 'one month later')]
+[-w whitelist - Specify a whitelist to include only some events]
 
 Examples:
 gcal-move-it.py 1
