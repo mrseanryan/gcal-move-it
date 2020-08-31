@@ -71,8 +71,8 @@ def event_start_date(event):
 
 def is_multi_day(event):
     if ('date' in event['start'] and
-                'date' in event['end']
-            ):
+            'date' in event['end']
+        ):
         start_date = event_start_date(event)
         end_date = parse_year_month_day(event['end']['date'])
         delta = end_date - start_date
@@ -83,8 +83,7 @@ def is_multi_day(event):
 
 def is_in_source_month(event):
     if ('date' in event['start']):
-        start_date = parse_year_month_day(
-            event['start']['date'])  # xxx avoid dupe code?
+        start_date = event_start_date(event)
         return start_date.month == sourceMonthIndex
 
     return False
@@ -99,7 +98,7 @@ def summary_passes_whitelist(summary):
 
 def filter_event(event):
     """
-  1 Filter the events
+    # Filter the events:
     # - not starting with "k " or "done "
     # - all-day, for 1 day
     # - not recurring
@@ -113,6 +112,7 @@ def filter_event(event):
     return (('start' in event) and  # else is multi-day event, which we skip
             # note: not checking for 'recurringEventId' since if the event was manually moved, then it probably got forgotten, and SHOULD be moved to next month
             not ('recurrence' in event) and
+            # TODO move this out as a blacklist option (with a script for these values)
             not summary.startswith("k ") and
             not summary.startswith("cancelled ") and
             not summary.startswith("done ") and
@@ -278,7 +278,10 @@ def main():
 
     filtered_events = filter(filter_event, events)
 
-    process_events(filtered_events, service)
+    sorted_and_filtered = sorted(
+        filtered_events, key=lambda event: event_start_date(event))
+
+    process_events(sorted_and_filtered, service)
 
 
 if __name__ == '__main__':
