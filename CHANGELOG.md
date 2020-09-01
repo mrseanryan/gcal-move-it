@@ -1,3 +1,9 @@
+## [1.2] - 1 Sept 2020
+
+### Changed
+
+- Migrate to Python 3.7.9
+
 ## [1.1] - 1 Sept 2020
 
 ### Changed

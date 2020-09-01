@@ -1,7 +1,8 @@
+#! python3
 """
 gcal-move-it.py
 Author: Sean Ryan
-Version: 1.1
+Version: 1.2
 
 Uses the Google Calendar API to move non-recurring events from one month to the next month.
 
@@ -26,6 +27,7 @@ from __future__ import print_function
 from babel.dates import format_date
 from calendar import monthrange
 from optparse import OptionParser
+from functools import reduce
 import getopt
 import datetime
 from datetime import date
@@ -52,7 +54,7 @@ def parse_year_month_day(date_string):
 
 
 def split_exlude_empty(text, separator):
-    return filter(None, text.split(separator))
+    return list(filter(None, text.split(separator)))
 
 
 # optparse - parse the args
@@ -279,8 +281,12 @@ def move_event(event, dest_month_value, dest_month_days, service):
     move_event_to(event, dest_date, service)
 
 
+def ilen(iterable):
+    return reduce(lambda sum, element: sum + 1, iterable, 0)
+
+
 def list_size_as_text(events):
-    return str(len(events))
+    return str(ilen(events))
 
 
 def process_events(filtered_events, service):
@@ -310,13 +316,13 @@ def main():
     if not events:
         print('No upcoming events found.')
 
-    filtered_events = filter(filter_event, events)
+    filtered_events = list(filter(filter_event, events))
 
     sorted_and_filtered = sorted(
         filtered_events, key=lambda event: event_start_date(event))
 
-    print ("Processing " + list_size_as_text(filtered_events) +
-           " of " + list_size_as_text(events) + " events...")
+    print ("Processing total of " + list_size_as_text(events) +
+           " events filtered down to " + list_size_as_text(filtered_events) + "...")
 
     process_events(sorted_and_filtered, service)
 

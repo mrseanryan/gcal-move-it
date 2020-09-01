@@ -66,10 +66,10 @@ Besides that, the optional black and white lists are applied, as specified via o
 
 So the file should be located at: `./credentials.json`
 
-3. Install PIP and Python 2.x
+3. Install Python 3.7.x and pip
 
-- Python 2.7.13 or later
-- PIP 10.01 or later
+- Python 3.7.9 or later
+- pip 20.2.2 or later
 
 4. Install dependencies
 
