@@ -237,7 +237,7 @@ def get_events(service):
     startOfToday = date.today()
     maxDate = min(endOfMonth, startOfToday)
 
-    print('Getting events than can be moved and have date in range: ' +
+    print('Getting events in range: ' +
           date_to_string(startOfMonth) + ' - ' + date_to_string(maxDate))
 
     return get_events_from_service(service, startOfMonth, maxDate)
