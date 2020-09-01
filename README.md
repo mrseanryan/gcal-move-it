@@ -71,17 +71,10 @@ So the file should be located at: `./credentials.json`
 - Python 2.7.13 or later
 - PIP 10.01 or later
 
-4. Install the Google client library
+4. Install dependencies
 
 ```
-pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib
-```
-
-5. Install dependencies
-
-```
-pip install Babel
-pip install python-dateutil
+pip install -r pip.config
 ```
 
 # references

@@ -6,6 +6,7 @@
 - Output total event count, before filtering - #4
 - Adjust retrieval message - fixes #1
 - Document the built-in hard-coded filtering - #7
+- Simplify installation of dependencies - #2
 
 ## [1.0] - 31 Aug 2020
 
