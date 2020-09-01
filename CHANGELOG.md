@@ -3,6 +3,7 @@
 ### Changed
 
 - Output total event count, before filtering
+- Document the built-in hard-coded filtering
 
 ## [1.0] - 31 Aug 2020
 

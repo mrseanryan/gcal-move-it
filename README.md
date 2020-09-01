@@ -38,6 +38,20 @@ Move events from March to the next month (April):
 python gcal-move-it.py 3
 ```
 
+# notes on filtering
+
+Events are filtered, before deciding which events to move.
+
+The following built-in rulies for filtering are _always_ applied.
+
+Events must be:
+
+- all-day, for 1 day
+- not a timed event (is all-day)
+- not recurring
+
+Besides that, the optional black and white lists are applied, as specified via options on the command line.
+
 # setup
 
 1. Get the credentials file

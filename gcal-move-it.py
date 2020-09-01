@@ -131,15 +131,14 @@ def summary_passes_whitelist(summary):
 def filter_event(event):
     """
     # Filter the events:
-    # - not starting with "k " or "done "
+    # - following white and black lists
     # - all-day, for 1 day
+    # - not a timed event (is all-day)
     # - not recurring
     """
     if (not 'start' in event):
         return False
     summary = event['summary'].lower()
-
-    # TODO xxx bug - if manually move an event back into that month, it is not picked up (bug in http request?)
 
     return (('start' in event) and  # else is multi-day event, which we skip
             # note: not checking for 'recurringEventId' since if the event was manually moved, then it probably got forgotten, and SHOULD be moved to next month
