@@ -77,7 +77,7 @@ blacklist = split_exlude_empty(options.blacklist, ';')
 is_dry_run = options.is_dry_run
 sourceMonthIndex = int(args[0])
 target_date = None
-if len(options.target_date) > 0:
+if any(options.target_date):
     target_date = parse_year_month_day(options.target_date)
 whitelist = split_exlude_empty(options.whitelist, ';')
 
@@ -115,14 +115,14 @@ def matches_blacklist_entry(summary, black):
 
 
 def summary_passes_blacklist(summary):
-    if (len(blacklist) == 0):
+    if (not any(blacklist)):
         return True
 
     return all(not matches_blacklist_entry(summary, b) for b in blacklist)
 
 
 def summary_passes_whitelist(summary):
-    if (len(whitelist) == 0):
+    if (not any(whitelist)):
         return True
 
     return any(w in summary for w in whitelist)
