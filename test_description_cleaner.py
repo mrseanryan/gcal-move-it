@@ -51,9 +51,15 @@ class TestDescriptionCleaner(unittest.TestCase):
             "(bad reviews) http://one.nl (http://one.nl)?")
         self.assertEqual("(bad reviews) http://one.nl?", actual)
 
-# TODO xxx
-# E-mail: info@crossfitninjas.nl (mailto:info@crossfitninjas.nl)
-# E-mail: info@crossfitninjas.nl
+    def test_repeated_text_with_email_1(self):
+        actual = description_cleaner.clean_description(
+            "E-mail: info@crossfitninjas.nl (mailto:info@crossfitninjas.nl)")
+        self.assertEqual("E-mail: info@crossfitninjas.nl ", actual)
+
+    def test_repeated_text_with_email_2(self):
+        actual = description_cleaner.clean_description(
+            "E-mail: info@crossfitninjas.nl (mailto:info@crossfitninjas.nl)Blah blah2")
+        self.assertEqual("E-mail: info@crossfitninjas.nl Blah blah2", actual)
 
 
 if __name__ == '__main__':

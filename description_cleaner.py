@@ -23,6 +23,12 @@ def fix_line(line):
                 line_fixed += part
                 prev_part = None
                 continue
+            with_braces = "(mailto:" + prev_part + ")"
+            if (with_braces in part):
+                part = part.replace(with_braces, " ")
+                line_fixed += part
+                prev_part = None
+                continue
 
         if (len(line_fixed) > 0):
             line_fixed += " "
