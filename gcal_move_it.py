@@ -247,7 +247,10 @@ def get_events(service):
                       daysInMonth) + datetime.timedelta(days=1)
 
     startOfToday = date.today()
-    maxDate = min(endOfMonth, startOfToday)
+
+    maxDate = endOfMonth
+    if (command == 'move'):
+        maxDate = min(endOfMonth, startOfToday)
 
     print('Getting events in range: ' +
           date_to_string(startOfMonth) + ' - ' + date_to_string(maxDate))

@@ -59,7 +59,7 @@ python gcal_move_it.py clean 2
 
 # notes on filtering
 
-Events are filtered, before deciding which events to move.
+Events are filtered, before deciding which events to process.
 
 The following built-in rulies for filtering are _always_ applied.
 
@@ -67,8 +67,11 @@ Events must be:
 
 - all-day, for 1 day
 - not a timed event (is all-day)
-- is before today
 - not recurring
+
+Exceptions:
+
+- For the 'move' command, the event must be before today.
 
 Besides that, the optional black and white lists are applied, as specified via options on the command line.
 
