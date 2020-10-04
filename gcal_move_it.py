@@ -101,7 +101,7 @@ def event_start_date(event):
 
 def is_multi_day(event):
     if ('date' in event['start'] and
-                'date' in event['end']
+            'date' in event['end']
             ):
         start_date = event_start_date(event)
         end_date = parse_year_month_day(event['end']['date'])
@@ -259,6 +259,13 @@ def date_to_wire_format(dest_date):
     return dest_date.strftime('%Y-%m-%d')
 
 
+def update_event_via_service(event, service):
+    service.events().update(calendarId='primary',
+                            eventId=event['id'],
+                            body=event
+                            ).execute()
+
+
 def move_event_to_via_service(event, dest_date, service):
     startDate = {'date': date_to_wire_format(dest_date)}
     endDate = {'date': date_to_wire_format(
@@ -267,10 +274,7 @@ def move_event_to_via_service(event, dest_date, service):
     event['start'] = startDate
     event['end'] = endDate
 
-    service.events().update(calendarId='primary',
-                            eventId=event['id'],
-                            body=event
-                            ).execute()
+    update_event_via_service(event, service)
 
 
 def move_event_to(event, dest_date, service):
@@ -300,8 +304,9 @@ def list_size_as_text(events):
     return str(ilen(events))
 
 
-def set_event_summary_via_service(event, clean_desc):
-    return  # xxx
+def set_event_summary_via_service(event, clean_desc, service):
+    event['description'] = clean_desc
+    update_event_via_service(event, service)
 
 
 def dump_desc(original_description, clean_desc):
@@ -322,7 +327,7 @@ def clean_event(event, service):
     if(clean_desc != original_description):
         dump_desc(original_description, clean_desc)
         if not is_dry_run:
-            set_event_summary_via_service(event, clean_desc)
+            set_event_summary_via_service(event, clean_desc, service)
         return True
     return False
 
@@ -343,7 +348,7 @@ def process_events_clean(filtered_events, service):
     if is_dry_run:
         print ("(dry run) No events were modified")
     else:
-        print (f"{events_cleaned} events were updated to have a  clean description")
+        print (f"{events_cleaned} events were updated to have a clean description")
 
 
 def process_events_move(filtered_events, service):
