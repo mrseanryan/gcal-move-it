@@ -10,10 +10,6 @@ NEW_LINE = "\n"
 
 
 def fix_line(line):
-    # import pdb
-    # if (line.startswith("https://www.gov")):
-    #     pdb.set_trace()
-
     parts = line.split(" ")
 
     line_fixed = ""
@@ -33,8 +29,6 @@ def fix_line(line):
 
         line_fixed += part
         prev_part = part
-        # else:
-        #     prev_part = None
 
     return line_fixed
 

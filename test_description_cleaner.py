@@ -51,6 +51,10 @@ class TestDescriptionCleaner(unittest.TestCase):
             "(bad reviews) http://one.nl (http://one.nl)?")
         self.assertEqual("(bad reviews) http://one.nl?", actual)
 
+# TODO xxx
+# E-mail: info@crossfitninjas.nl (mailto:info@crossfitninjas.nl)
+# E-mail: info@crossfitninjas.nl
+
 
 if __name__ == '__main__':
     unittest.main()

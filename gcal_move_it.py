@@ -2,13 +2,20 @@
 """
 gcal_move_it.py
 Author: Sean Ryan
-Version: 1.2
+Version: 1.3
 
-Uses the Google Calendar API to move non-recurring events from one month to the next month.
+Uses the Google Calendar API to bulk process events:
 
-Only events that occurred before today are moved.
+# clean:
+- clean descriptions that have doubled-up URLs
 
-Usage: gcal_move_it.py <source month 1..12> [options]
+Usage: gcal_move_it.py clean <month 1..12> [options]
+
+# move:
+- Move non-recurring events from one month to the next month.
+- Only events that occurred before today are moved.
+
+Usage: gcal_move_it.py move <source month 1..12> [options]
 
 The options are:
 [-b blacklist - Specify a blacklist to exclude some events]
@@ -18,9 +25,10 @@ The options are:
 [-w whitelist - Specify a whitelist to include only some events]
 
 Examples:
-gcal_move_it.py 1
-gcal_move_it.py 1 -w urgent;important
-gcal_move_it.py 1 -b "cancelled;^done" -d -w urgent;important
+gcal_move_it.py clean 1
+gcal_move_it.py move 1
+gcal_move_it.py move 1 -w urgent;important
+gcal_move_it.py move 1 -b "cancelled;^done" -d -w urgent;important
 """
 
 from __future__ import print_function
@@ -38,6 +46,8 @@ import sys
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
+
+import description_cleaner
 
 # If modifying these scopes, delete the file token.pickle.
 SCOPES = ['https://www.googleapis.com/auth/calendar.events']
@@ -71,13 +81,14 @@ parser.add_option('-w', '--whitelist', dest='whitelist', default="",
                   help='Whitelist: pass any events that contain one of these ; separated texts.')
 
 (options, args) = parser.parse_args()
-if (len(args) != 1):
+if (len(args) != 2):
     usage()
     sys.exit(2)
 
 blacklist = split_exlude_empty(options.blacklist, ';')
 is_dry_run = options.is_dry_run
-sourceMonthIndex = int(args[0])
+command = args[0]
+sourceMonthIndex = int(args[1])
 target_date = None
 if any(options.target_date):
     target_date = parse_year_month_day(options.target_date)
@@ -90,7 +101,7 @@ def event_start_date(event):
 
 def is_multi_day(event):
     if ('date' in event['start'] and
-            'date' in event['end']
+                'date' in event['end']
             ):
         start_date = event_start_date(event)
         end_date = parse_year_month_day(event['end']['date'])
@@ -289,7 +300,53 @@ def list_size_as_text(events):
     return str(ilen(events))
 
 
-def process_events(filtered_events, service):
+def set_event_summary_via_service(event, clean_desc):
+    return  # xxx
+
+
+def dump_desc(original_description, clean_desc):
+    print (">>-- FROM --<<")
+    print (original_description)
+    print (">>--  TO  --<<")
+    print(clean_desc)
+    print (">>-- ---- --<<")
+    print()
+
+
+def clean_event(event, service):
+    if(not('description' in event)):
+        return False
+
+    original_description = event['description']
+    clean_desc = description_cleaner.clean_description(original_description)
+    if(clean_desc != original_description):
+        dump_desc(original_description, clean_desc)
+        if not is_dry_run:
+            set_event_summary_via_service(event, clean_desc)
+        return True
+    return False
+
+
+def process_events_clean(filtered_events, service):
+    events_cleaned = 0
+    for event in filtered_events:
+        # To debug, uncomment here:
+        # import pdb
+        # pdb.set_trace()
+        #
+        print(date_to_string(event_start_date(event)), event['summary'])
+        if (clean_event(event, service)):
+            events_cleaned += 1
+
+    print (f"{events_cleaned} events have a 'dirty' description")
+
+    if is_dry_run:
+        print ("(dry run) No events were modified")
+    else:
+        print (f"{events_cleaned} events were updated to have a  clean description")
+
+
+def process_events_move(filtered_events, service):
     dest_month_value = dest_month()
     dest_month_days = days_in_month(
         dest_month_value.year, dest_month_value.month)
@@ -324,7 +381,13 @@ def main():
     print ("Processing total of " + list_size_as_text(events) +
            " events filtered down to " + list_size_as_text(filtered_events) + "...")
 
-    process_events(sorted_and_filtered, service)
+    if (command == "clean"):
+        process_events_clean(sorted_and_filtered, service)
+    elif (command == "move"):
+        process_events_move(sorted_and_filtered, service)
+    else:
+        print(f"Unknown command '{command}'")
+        usage()
 
 
 if __name__ == '__main__':
