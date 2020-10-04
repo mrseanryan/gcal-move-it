@@ -1,1 +1,1 @@
-python ./gcal-move-it.py $1 $2 $3 $4 $5
+python ./gcal_move_it.py $1 $2 $3 $4 $5

@@ -1,6 +1,6 @@
 #! python3
 """
-gcal-move-it.py
+gcal_move_it.py
 Author: Sean Ryan
 Version: 1.2
 
@@ -8,7 +8,7 @@ Uses the Google Calendar API to move non-recurring events from one month to the 
 
 Only events that occurred before today are moved.
 
-Usage: gcal-move-it.py <source month 1..12> [options]
+Usage: gcal_move_it.py <source month 1..12> [options]
 
 The options are:
 [-b blacklist - Specify a blacklist to exclude some events]
@@ -18,9 +18,9 @@ The options are:
 [-w whitelist - Specify a whitelist to include only some events]
 
 Examples:
-gcal-move-it.py 1
-gcal-move-it.py 1 -w urgent;important
-gcal-move-it.py 1 -b "cancelled;^done" -d -w urgent;important
+gcal_move_it.py 1
+gcal_move_it.py 1 -w urgent;important
+gcal_move_it.py 1 -b "cancelled;^done" -d -w urgent;important
 """
 
 from __future__ import print_function

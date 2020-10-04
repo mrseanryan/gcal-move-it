@@ -1,1 +1,1 @@
-python gcal-move-it.py -b "^k ;^cancelled ;^done ;^n/a;=hol" -d %1
+python gcal_move_it.py -b "^k ;^cancelled ;^done ;^n/a;=hol" -d %1

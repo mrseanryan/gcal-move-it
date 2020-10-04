@@ -1,4 +1,4 @@
-# gcal-move-it README
+# gcal_move_it README
 
 A command line tool to move events from one month to another, in a Google Calendar.
 
@@ -7,11 +7,11 @@ A command line tool to move events from one month to another, in a Google Calend
 See the built-in help:
 
 ```
-python gcal-move-it.py
+python gcal_move_it.py
 ```
 
 ```
-Usage: gcal-move-it.py <source month 1..12> [options]
+Usage: gcal_move_it.py <source month 1..12> [options]
 
 The options are:
 [-b blacklist - Specify a blacklist to exclude some events]
@@ -21,21 +21,21 @@ The options are:
 [-w whitelist - Specify a whitelist to include only some events]
 
 Examples:
-gcal-move-it.py 1
-gcal-move-it.py 1 -w urgent;important
-gcal-move-it.py 1 -b "cancelled;^done" -d -w urgent;important
+gcal_move_it.py 1
+gcal_move_it.py 1 -w urgent;important
+gcal_move_it.py 1 -b "cancelled;^done" -d -w urgent;important
 ```
 
 Try a dry run, that does not modify your calendar:
 
 ```
-python gcal-move-it.py 1 -d
+python gcal_move_it.py 1 -d
 ```
 
 Move events from March to the next month (April):
 
 ```
-python gcal-move-it.py 3
+python gcal_move_it.py 3
 ```
 
 # notes on filtering
