@@ -1,6 +1,9 @@
 # gcal_move_it README
 
-A command line tool to move events from one month to another, in a Google Calendar.
+A command line tool to bulk process events in a Google Calendar:
+
+- clean the description of events, to remove duplicate URLs and email addresses, if the event was edited in the mobile version of Google Calendar
+- move events from one month to another
 
 # use
 
@@ -11,7 +14,16 @@ python gcal_move_it.py
 ```
 
 ```
-Usage: gcal_move_it.py <source month 1..12> [options]
+# clean:
+- clean descriptions that have doubled-up URLs
+
+Usage: gcal_move_it.py clean <month 1..12> [options]
+
+# move:
+- Move non-recurring events from one month to the next month.
+- Only events that occurred before today are moved.
+
+Usage: gcal_move_it.py move <source month 1..12> [options]
 
 The options are:
 [-b blacklist - Specify a blacklist to exclude some events]
@@ -21,21 +33,28 @@ The options are:
 [-w whitelist - Specify a whitelist to include only some events]
 
 Examples:
-gcal_move_it.py 1
-gcal_move_it.py 1 -w urgent;important
-gcal_move_it.py 1 -b "cancelled;^done" -d -w urgent;important
+gcal_move_it.py clean 1
+gcal_move_it.py move 1
+gcal_move_it.py move 1 -w urgent;important
+gcal_move_it.py move 1 -b "cancelled;^done" -d -w urgent;important
 ```
 
 Try a dry run, that does not modify your calendar:
 
 ```
-python gcal_move_it.py 1 -d
+python gcal_move_it.py move 1 -d
 ```
 
 Move events from March to the next month (April):
 
 ```
-python gcal_move_it.py 3
+python gcal_move_it.py move 3
+```
+
+Clean events in February:
+
+```
+python gcal_move_it.py clean 2
 ```
 
 # notes on filtering
@@ -48,6 +67,7 @@ Events must be:
 
 - all-day, for 1 day
 - not a timed event (is all-day)
+- is before today
 - not recurring
 
 Besides that, the optional black and white lists are applied, as specified via options on the command line.
