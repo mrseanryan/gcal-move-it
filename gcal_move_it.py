@@ -7,7 +7,7 @@ Version: 1.3
 Uses the Google Calendar API to bulk process events:
 
 # clean:
-- clean descriptions that have doubled-up URLs
+- clean descriptions that have doubled-up URLs or email addresses
 
 Usage: gcal_move_it.py clean <month 1..12> [options]
 

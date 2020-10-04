@@ -15,7 +15,7 @@ python gcal_move_it.py
 
 ```
 # clean:
-- clean descriptions that have doubled-up URLs
+- clean descriptions that have doubled-up URLs or email addresses
 
 Usage: gcal_move_it.py clean <month 1..12> [options]
 
