@@ -1,3 +1,13 @@
+## [1.3] - 4 October 2020
+
+### Added
+
+- Added 'clean' command to clean up duplicate URLs and email address, if an event was edited in mobile version of Google Calendar
+
+### Changed
+
+- Added command 'move' to move the events
+
 ## [1.2] - 1 Sept 2020
 
 ### Changed
