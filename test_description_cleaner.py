@@ -14,6 +14,11 @@ class TestDescriptionCleaner(unittest.TestCase):
         actual = description_cleaner.clean_description("Just some plain text")
         self.assertEqual("Just some plain text", actual)
 
+    def test_plain_text_with_whitespace(self):
+        actual = description_cleaner.clean_description(
+            "  Some plain text with whitespace  ")
+        self.assertEqual("  Some plain text with whitespace  ", actual)
+
     def test_repeated_text_1(self):
         actual = description_cleaner.clean_description(
             "https://www.amazon.co.uk/Inferno-Dante/dp/0385496982/ref=sr_1_7?s=books&ie=UTF8&qid=1513654376&sr=1-7&keywords=dante+inferno (https://www.amazon.co.uk/Inferno-Dante/dp/0385496982/ref=sr_1_7?s=books&ie=UTF8&qid=1513654376&sr=1-7&keywords=dante+inferno)")

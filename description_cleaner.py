@@ -15,6 +15,7 @@ def fix_line(line):
     line_fixed = ""
 
     prev_part = None
+    did_replace = False
     for part in parts:
         if (prev_part != None):
             with_braces = "(" + prev_part + ")"
@@ -22,12 +23,14 @@ def fix_line(line):
                 part = part.replace(with_braces, "")
                 line_fixed += part
                 prev_part = None
+                did_replace = True
                 continue
             with_braces = "(mailto:" + prev_part + ")"
             if (with_braces in part):
                 part = part.replace(with_braces, " ")
                 line_fixed += part
                 prev_part = None
+                did_replace = True
                 continue
 
         if (len(line_fixed) > 0):
@@ -36,7 +39,11 @@ def fix_line(line):
         line_fixed += part
         prev_part = part
 
-    return line_fixed
+    # Avoid updating when the only change is loss of whitespace:
+    if (did_replace):
+        return line_fixed  # some whitespace lost
+
+    return line
 
 
 def clean_description(desc):
