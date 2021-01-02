@@ -21,6 +21,7 @@ The options are:
 [-b blacklist - Specify a blacklist to exclude some events]
 [-d dryrun - Perform a dry run, without actually modifying the calendar]
 [-h help]
+[-p previousyear - Use the previous year for the source month (useful if moving from December to January)]
 [-t targetdate - Specify an exact target date (instead of the default which is 'one month later')]
 [-w whitelist - Specify a whitelist to include only some events]
 
@@ -75,6 +76,9 @@ parser.add_option('-b', '--blacklist', dest='blacklist', default="",
 parser.add_option('-d', '--dryrun', dest='is_dry_run', action='store_const',
                   const=True, default=False,
                   help='Perform a dry run: do not modify the calendar')
+parser.add_option('-p', '--previousyear', dest='is_previous_year_for_source_month', action='store_const',
+                  const=True, default=False,
+                  help='Use the previous year for the source month (useful if moving from December to January)')
 parser.add_option('-t', '--targetdate', dest='target_date', default='',
                   help='Move to this date (instead of adding 1 month). Format: yyyy-mm-dd')
 parser.add_option('-w', '--whitelist', dest='whitelist', default="",
@@ -87,6 +91,7 @@ if (len(args) != 2):
 
 blacklist = split_exlude_empty(options.blacklist, ';')
 is_dry_run = options.is_dry_run
+is_previous_year_for_source_month = options.is_previous_year_for_source_month
 command = args[0]
 sourceMonthIndex = int(args[1])
 target_date = None
@@ -216,9 +221,14 @@ def days_in_month(year, month_index):
 def this_year():
     return date.today().year
 
+def source_year():
+    if (is_previous_year_for_source_month):
+        return this_year() - 1
+    return this_year()
+
 
 def days_source_month():
-    daysInMonth = days_in_month(this_year(), sourceMonthIndex)
+    daysInMonth = days_in_month(source_year(), sourceMonthIndex)
     return daysInMonth
 
 
@@ -230,7 +240,7 @@ def dest_month():
 
 
 def start_of_source_month():
-    return date(this_year(), sourceMonthIndex, 1)
+    return date(source_year(), sourceMonthIndex, 1)
 
 
 def get_events(service):
@@ -243,7 +253,7 @@ def get_events(service):
     daysInMonth = days_source_month()
 
     # The end of the month is the very start of the following day
-    endOfMonth = date(this_year(), sourceMonthIndex,
+    endOfMonth = date(source_year(), sourceMonthIndex,
                       daysInMonth) + datetime.timedelta(days=1)
 
     startOfToday = date.today()
