@@ -2,7 +2,7 @@
 """
 gcal_move_it.py
 Author: Sean Ryan
-Version: 1.3
+Version: 1.4
 
 Uses the Google Calendar API to bulk process events:
 
@@ -29,17 +29,15 @@ gcal_move_it.py clean 1
 gcal_move_it.py move 1
 gcal_move_it.py move 1 -w urgent;important
 gcal_move_it.py move 1 -b "cancelled;^done" -d -w urgent;important
+gcal_move_it.py move 1 -w subject_1;subject_2 -t 2021-01-13
 """
 
 from __future__ import print_function
 from babel.dates import format_date
-from calendar import monthrange
 from optparse import OptionParser
 from functools import reduce
 import getopt
 import datetime
-from datetime import date
-from dateutil import relativedelta
 import pickle
 import os.path
 import sys
@@ -47,7 +45,10 @@ from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 
+import date_utils
 import description_cleaner
+import target_date_calculator
+import todays
 
 # If modifying these scopes, delete the file token.pickle.
 SCOPES = ['https://www.googleapis.com/auth/calendar.events']
@@ -57,10 +58,6 @@ SCOPES = ['https://www.googleapis.com/auth/calendar.events']
 
 def usage():
     print(__doc__)
-
-
-def parse_year_month_day(date_string):
-    return datetime.datetime.strptime(date_string, '%Y-%m-%d')
 
 
 def split_exlude_empty(text, separator):
@@ -88,23 +85,23 @@ if (len(args) != 2):
 blacklist = split_exlude_empty(options.blacklist, ';')
 is_dry_run = options.is_dry_run
 command = args[0]
-sourceMonthIndex = int(args[1])
-target_date = None
+source_month_index = int(args[1])
+target_date_option = None
 if any(options.target_date):
-    target_date = parse_year_month_day(options.target_date)
+    target_date_option = date_utils.parse_year_month_day(options.target_date)
 whitelist = split_exlude_empty(options.whitelist, ';')
 
-
-def event_start_date(event):
-    return parse_year_month_day(event['start']['date'])
+today = todays.TodayAuto()
+date_context = date_utils.DateContext(today, source_month_index)
+is_move = command == 'move'
 
 
 def is_multi_day(event):
     if ('date' in event['start'] and
             'date' in event['end']
             ):
-        start_date = event_start_date(event)
-        end_date = parse_year_month_day(event['end']['date'])
+        start_date = date_utils.event_start_date(event)
+        end_date = date_utils.parse_year_month_day(event['end']['date'])
         delta = end_date - start_date
         return delta.days > 1  # A whole-day event actually ends on the next day!
 
@@ -113,10 +110,17 @@ def is_multi_day(event):
 
 def is_in_source_month(event):
     if ('date' in event['start']):
-        start_date = event_start_date(event)
-        return start_date.month == sourceMonthIndex
+        start_date = date_utils.event_start_date(event)
+        return start_date.month == source_month_index
 
     return False
+
+
+def is_before_max_date(event, date_context):
+    max_date = date_utils.calculate_max_date(date_context, is_move)
+    start_date = date_utils.event_start_date(event)
+
+    return start_date < max_date
 
 
 def matches_blacklist_entry(summary, black):
@@ -161,7 +165,9 @@ def filter_event(event):
             not is_multi_day(event) and
             not 'dateTime' in event['start'] and  # not a timed event
             # not in the next month (bug in http request?)
-            is_in_source_month(event)
+            is_in_source_month(event) and
+            # is before the max date [occurs with *manually moved* recurring events] (bug in http request?)
+            is_before_max_date(event, date_context)
             )
 
 
@@ -209,55 +215,12 @@ def get_events_from_service(service, startOfMonth, maxDate):
     return events
 
 
-def days_in_month(year, month_index):
-    return monthrange(year, month_index)[1]
-
-
-def this_year():
-    return date.today().year
-
-
-def source_year():
-    # If source is December, then is from previous year:
-    if (sourceMonthIndex == 12):
-        return this_year() - 1
-    return this_year()
-
-
-def days_source_month():
-    daysInMonth = days_in_month(source_year(), sourceMonthIndex)
-    return daysInMonth
-
-
-def dest_month():
-    if (target_date != None):
-        return target_date
-
-    return start_of_source_month() + relativedelta.relativedelta(months=1)
-
-
-def start_of_source_month():
-    return date(source_year(), sourceMonthIndex, 1)
-
-
-def get_events(service):
+def get_events(service, maxDate):
     # Call the Calendar API
     #
     # Get the events for the source month, that could be moved
-    # - only past events (not from today)
 
-    startOfMonth = start_of_source_month()
-    daysInMonth = days_source_month()
-
-    # The end of the month is the very start of the following day
-    endOfMonth = date(source_year(), sourceMonthIndex,
-                      daysInMonth) + datetime.timedelta(days=1)
-
-    startOfToday = date.today()
-
-    maxDate = endOfMonth
-    if (command == 'move'):
-        maxDate = min(endOfMonth, startOfToday)
+    startOfMonth = date_utils.start_of_source_month(date_context)
 
     print('Getting events in range: ' +
           date_to_string(startOfMonth) + ' - ' + date_to_string(maxDate))
@@ -265,8 +228,8 @@ def get_events(service):
     return get_events_from_service(service, startOfMonth, maxDate)
 
 
-def date_to_wire_format(dest_date):
-    return dest_date.strftime('%Y-%m-%d')
+def date_to_wire_format(target_date):
+    return target_date.strftime('%Y-%m-%d')
 
 
 def update_event_via_service(event, service):
@@ -276,10 +239,10 @@ def update_event_via_service(event, service):
                             ).execute()
 
 
-def move_event_to_via_service(event, dest_date, service):
-    startDate = {'date': date_to_wire_format(dest_date)}
+def move_event_to_via_service(event, target_date, service):
+    startDate = {'date': date_to_wire_format(target_date)}
     endDate = {'date': date_to_wire_format(
-        dest_date + datetime.timedelta(days=1))}
+        target_date + datetime.timedelta(days=1))}
 
     event['start'] = startDate
     event['end'] = endDate
@@ -287,23 +250,19 @@ def move_event_to_via_service(event, dest_date, service):
     update_event_via_service(event, service)
 
 
-def move_event_to(event, dest_date, service):
-    print("--> " + date_to_string(dest_date))
+def move_event_to(event, target_date, service):
+    print("--> " + date_to_string(target_date))
     if not is_dry_run:
-        move_event_to_via_service(event, dest_date, service)
+        move_event_to_via_service(event, target_date, service)
 
 
-def move_event(event, dest_month_value, dest_month_days, service):
-    # If dest month has less days, then use the last day
-    source_date = event_start_date(event)
-    dest_day = source_date.day
-    if (source_date.day > dest_month_days):
-        dest_day = dest_month_days
-    dest_date = date(dest_month_value.year, dest_month_value.month, dest_day)
+def move_event(event, date_context, target_date_option, service):
+    source_date = date_utils.event_start_date(event)
 
-    if (target_date != None):
-        dest_date = target_date
-    move_event_to(event, dest_date, service)
+    target_date = target_date_calculator.calculate_target_date(
+        date_context, source_date, target_date_option)
+
+    move_event_to(event, target_date, service)
 
 
 def ilen(iterable):
@@ -349,7 +308,8 @@ def process_events_clean(filtered_events, service):
         # import pdb
         # pdb.set_trace()
         #
-        print(date_to_string(event_start_date(event)), event['summary'])
+        print(date_to_string(date_utils.event_start_date(event)),
+              event['summary'])
         if (clean_event(event, service)):
             events_cleaned += 1
 
@@ -361,18 +321,22 @@ def process_events_clean(filtered_events, service):
         print(f"{events_cleaned} events were updated to have a clean description")
 
 
-def process_events_move(filtered_events, service):
-    dest_month_value = dest_month()
-    dest_month_days = days_in_month(
-        dest_month_value.year, dest_month_value.month)
+def summarize_event(event):
+    summary = event['summary']
+    if ('recurringEventId' in event):
+        summary += ' (recurring, but moved)'
+    return summary
 
+
+def process_events_move(filtered_events, service):
     for event in filtered_events:
         # To debug, uncomment here:
         # import pdb
         # pdb.set_trace()
         #
-        print(date_to_string(event_start_date(event)), event['summary'])
-        move_event(event, dest_month_value, dest_month_days, service)
+        print(date_to_string(date_utils.event_start_date(event)),
+              summarize_event(event))
+        move_event(event, date_context, target_date_option, service)
 
     if is_dry_run:
         print("(dry run) No events were modified")
@@ -383,7 +347,8 @@ def process_events_move(filtered_events, service):
 def main():
     service = connect_to_calendar_service()
 
-    events = get_events(service)
+    events = get_events(
+        service, date_utils.calculate_max_date(date_context, is_move))
 
     if not events:
         print('No upcoming events found.')
@@ -391,7 +356,7 @@ def main():
     filtered_events = list(filter(filter_event, events))
 
     sorted_and_filtered = sorted(
-        filtered_events, key=lambda event: event_start_date(event))
+        filtered_events, key=lambda event: date_utils.event_start_date(event))
 
     print("Processing total of " + list_size_as_text(events) +
           " events filtered down to " + list_size_as_text(filtered_events) + "...")

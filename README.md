@@ -37,6 +37,7 @@ gcal_move_it.py clean 1
 gcal_move_it.py move 1
 gcal_move_it.py move 1 -w urgent;important
 gcal_move_it.py move 1 -b "cancelled;^done" -d -w urgent;important
+gcal_move_it.py move 1 -w subject_1;subject_2 -t 2021-01-13
 ```
 
 Try a dry run, that does not modify your calendar:
