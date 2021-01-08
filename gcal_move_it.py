@@ -2,7 +2,7 @@
 """
 gcal_move_it.py
 Author: Sean Ryan
-Version: 1.3
+Version: 1.4
 
 Uses the Google Calendar API to bulk process events:
 

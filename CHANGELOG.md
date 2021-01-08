@@ -1,3 +1,13 @@
+## [1.4] - 8 January 2021
+
+### Added
+
+- (Internal) Added target date handling unit tests.
+
+### Changed
+
+- fix: improved handling of manually-moved recurring event (it was bypassing the filter for 'not today or after')
+
 ## [1.3] - 4 October 2020
 
 ### Added
