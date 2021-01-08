@@ -99,7 +99,7 @@ date_context = date_utils.DateContext(today, source_month_index)
 
 def is_multi_day(event):
     if ('date' in event['start'] and
-            'date' in event['end']
+                'date' in event['end']
             ):
         start_date = date_utils.event_start_date(event)
         end_date = date_utils.parse_year_month_day(event['end']['date'])
@@ -329,6 +329,13 @@ def process_events_clean(filtered_events, service):
         print(f"{events_cleaned} events were updated to have a clean description")
 
 
+def summarize_event(event):
+    summary = event['summary']
+    if ('recurringEventId' in event):
+        summary += ' (recurring, but moved)'
+    return summary
+
+
 def process_events_move(filtered_events, service):
     target_month_value = date_utils.target_month(
         date_context, target_date_option)
@@ -341,7 +348,7 @@ def process_events_move(filtered_events, service):
         # pdb.set_trace()
         #
         print(date_to_string(date_utils.event_start_date(event)),
-              event['summary'])
+              summarize_event(event))
         move_event(event, target_month_value, target_month_days, service)
 
     if is_dry_run:
