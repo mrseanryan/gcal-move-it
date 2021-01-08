@@ -1,3 +1,7 @@
+### Added
+
+- Add ability to pin events to a day of the week, with a [p] entry in the event description
+
 ## [1.4] - 8 January 2021
 
 ### Added
