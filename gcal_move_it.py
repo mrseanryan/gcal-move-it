@@ -93,8 +93,8 @@ if any(options.target_date):
 whitelist = split_exlude_empty(options.whitelist, ';')
 
 today = todays.TodayAuto()
-
 date_context = date_utils.DateContext(today, source_month_index)
+is_move = command == 'move'
 
 
 def is_multi_day(event):
@@ -115,6 +115,13 @@ def is_in_source_month(event):
         return start_date.month == source_month_index
 
     return False
+
+
+def is_before_max_date(event, date_context):
+    max_date = date_utils.calculate_max_date(date_context, is_move)
+    start_date = date_utils.event_start_date(event)
+
+    return start_date < max_date
 
 
 def matches_blacklist_entry(summary, black):
@@ -159,7 +166,9 @@ def filter_event(event):
             not is_multi_day(event) and
             not 'dateTime' in event['start'] and  # not a timed event
             # not in the next month (bug in http request?)
-            is_in_source_month(event)
+            is_in_source_month(event) and
+            # is before the max date [occurs with *manually moved* recurring events] (bug in http request?)
+            is_before_max_date(event, date_context)
             )
 
 
@@ -207,24 +216,12 @@ def get_events_from_service(service, startOfMonth, maxDate):
     return events
 
 
-def get_events(service):
+def get_events(service, maxDate):
     # Call the Calendar API
     #
     # Get the events for the source month, that could be moved
-    # - only past events (not from today)
 
     startOfMonth = date_utils.start_of_source_month(date_context)
-    daysInMonth = date_utils.days_source_month(date_context)
-
-    # The end of the month is the very start of the following day
-    endOfMonth = date(date_utils.source_year(date_context), source_month_index,
-                      daysInMonth) + datetime.timedelta(days=1)
-
-    startOfToday = date.today()
-
-    maxDate = endOfMonth
-    if (command == 'move'):
-        maxDate = min(endOfMonth, startOfToday)
 
     print('Getting events in range: ' +
           date_to_string(startOfMonth) + ' - ' + date_to_string(maxDate))
@@ -360,7 +357,8 @@ def process_events_move(filtered_events, service):
 def main():
     service = connect_to_calendar_service()
 
-    events = get_events(service)
+    events = get_events(
+        service, date_utils.calculate_max_date(date_context, is_move))
 
     if not events:
         print('No upcoming events found.')

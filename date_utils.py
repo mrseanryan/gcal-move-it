@@ -25,7 +25,7 @@ def event_start_date(event):
 
 
 def parse_year_month_day(date_string):
-    return datetime.datetime.strptime(date_string, '%Y-%m-%d')
+    return datetime.datetime.strptime(date_string, '%Y-%m-%d').date()
 
 
 def target_year(date_context):
@@ -59,3 +59,21 @@ def target_month(date_context, target_date_option):
 
 def start_of_source_month(date_context):
     return date(source_year(date_context), date_context.source_month_index, 1)
+
+
+def calculate_max_date(date_context, is_move):
+    # - only past events (not from today)
+    startOfMonth = start_of_source_month(date_context)
+    daysInMonth = days_source_month(date_context)
+
+    # The end of the month is the very start of the following day
+    endOfMonth = date(source_year(date_context), date_context.source_month_index,
+                      daysInMonth) + datetime.timedelta(days=1)
+
+    startOfToday = date.today()
+
+    maxDate = endOfMonth
+    if (is_move):
+        maxDate = min(endOfMonth, startOfToday)
+
+    return maxDate
