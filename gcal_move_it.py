@@ -86,7 +86,7 @@ if (len(args) != 2):
 blacklist = split_exlude_empty(options.blacklist, ';')
 is_dry_run = options.is_dry_run
 command = args[0]
-sourceMonthIndex = int(args[1])
+source_month_index = int(args[1])
 target_date_option = None
 if any(options.target_date):
     target_date_option = date_utils.parse_year_month_day(options.target_date)
@@ -94,11 +94,13 @@ whitelist = split_exlude_empty(options.whitelist, ';')
 
 today = todays.TodayAuto()
 
+date_context = date_utils.DateContext(today, source_month_index)
+
 
 def is_multi_day(event):
     if ('date' in event['start'] and
-        'date' in event['end']
-        ):
+            'date' in event['end']
+            ):
         start_date = date_utils.event_start_date(event)
         end_date = date_utils.parse_year_month_day(event['end']['date'])
         delta = end_date - start_date
@@ -110,7 +112,7 @@ def is_multi_day(event):
 def is_in_source_month(event):
     if ('date' in event['start']):
         start_date = date_utils.event_start_date(event)
-        return start_date.month == sourceMonthIndex
+        return start_date.month == source_month_index
 
     return False
 
@@ -211,11 +213,11 @@ def get_events(service):
     # Get the events for the source month, that could be moved
     # - only past events (not from today)
 
-    startOfMonth = date_utils.start_of_source_month(today, sourceMonthIndex)
-    daysInMonth = date_utils.days_source_month(today, sourceMonthIndex)
+    startOfMonth = date_utils.start_of_source_month(date_context)
+    daysInMonth = date_utils.days_source_month(date_context)
 
     # The end of the month is the very start of the following day
-    endOfMonth = date(date_utils.source_year(today, sourceMonthIndex), sourceMonthIndex,
+    endOfMonth = date(date_utils.source_year(date_context), source_month_index,
                       daysInMonth) + datetime.timedelta(days=1)
 
     startOfToday = date.today()
@@ -261,7 +263,7 @@ def move_event_to(event, target_date, service):
 def move_event(event, target_month_value, target_month_days, service):
     source_date = date_utils.event_start_date(event)
     target_day = target_date_calculator.calculate_day_of_month_for_event(
-        event, date_utils.target_year(today, sourceMonthIndex), target_month_value.month)
+        event, date_utils.target_year(date_context), target_month_value.month)
 
     target_date = date(target_month_value.year,
                        target_month_value.month, target_day)
@@ -329,7 +331,7 @@ def process_events_clean(filtered_events, service):
 
 def process_events_move(filtered_events, service):
     target_month_value = date_utils.target_month(
-        today, target_date_option, sourceMonthIndex)
+        date_context, target_date_option)
     target_month_days = date_utils.days_in_month(
         target_month_value.year, target_month_value.month)
 
