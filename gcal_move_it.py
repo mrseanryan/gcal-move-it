@@ -21,7 +21,6 @@ The options are:
 [-b blacklist - Specify a blacklist to exclude some events]
 [-d dryrun - Perform a dry run, without actually modifying the calendar]
 [-h help]
-[-p previousyear - Use the previous year for the source month (useful if moving from December to January)]
 [-t targetdate - Specify an exact target date (instead of the default which is 'one month later')]
 [-w whitelist - Specify a whitelist to include only some events]
 
@@ -76,9 +75,6 @@ parser.add_option('-b', '--blacklist', dest='blacklist', default="",
 parser.add_option('-d', '--dryrun', dest='is_dry_run', action='store_const',
                   const=True, default=False,
                   help='Perform a dry run: do not modify the calendar')
-parser.add_option('-p', '--previousyear', dest='is_previous_year_for_source_month', action='store_const',
-                  const=True, default=False,
-                  help='Use the previous year for the source month (useful if moving from December to January)')
 parser.add_option('-t', '--targetdate', dest='target_date', default='',
                   help='Move to this date (instead of adding 1 month). Format: yyyy-mm-dd')
 parser.add_option('-w', '--whitelist', dest='whitelist', default="",
@@ -91,7 +87,6 @@ if (len(args) != 2):
 
 blacklist = split_exlude_empty(options.blacklist, ';')
 is_dry_run = options.is_dry_run
-is_previous_year_for_source_month = options.is_previous_year_for_source_month
 command = args[0]
 sourceMonthIndex = int(args[1])
 target_date = None
@@ -221,8 +216,10 @@ def days_in_month(year, month_index):
 def this_year():
     return date.today().year
 
+
 def source_year():
-    if (is_previous_year_for_source_month):
+    # If source is December, then is from previous year:
+    if (sourceMonthIndex == 12):
         return this_year() - 1
     return this_year()
 
