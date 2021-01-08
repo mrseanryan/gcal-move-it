@@ -38,7 +38,6 @@ from optparse import OptionParser
 from functools import reduce
 import getopt
 import datetime
-from datetime import date
 import pickle
 import os.path
 import sys
@@ -99,7 +98,7 @@ is_move = command == 'move'
 
 def is_multi_day(event):
     if ('date' in event['start'] and
-                'date' in event['end']
+            'date' in event['end']
             ):
         start_date = date_utils.event_start_date(event)
         end_date = date_utils.parse_year_month_day(event['end']['date'])
@@ -257,16 +256,12 @@ def move_event_to(event, target_date, service):
         move_event_to_via_service(event, target_date, service)
 
 
-def move_event(event, target_month_value, target_month_days, service):
+def move_event(event, date_context, target_date_option, service):
     source_date = date_utils.event_start_date(event)
-    target_day = target_date_calculator.calculate_day_of_month_for_event(
-        event, date_utils.target_year(date_context), target_month_value.month)
 
-    target_date = date(target_month_value.year,
-                       target_month_value.month, target_day)
+    target_date = target_date_calculator.calculate_target_date(
+        date_context, source_date, target_date_option)
 
-    if (target_date_option != None):
-        target_date = target_date_option
     move_event_to(event, target_date, service)
 
 
@@ -334,11 +329,6 @@ def summarize_event(event):
 
 
 def process_events_move(filtered_events, service):
-    target_month_value = date_utils.target_month(
-        date_context, target_date_option)
-    target_month_days = date_utils.days_in_month(
-        target_month_value.year, target_month_value.month)
-
     for event in filtered_events:
         # To debug, uncomment here:
         # import pdb
@@ -346,7 +336,7 @@ def process_events_move(filtered_events, service):
         #
         print(date_to_string(date_utils.event_start_date(event)),
               summarize_event(event))
-        move_event(event, target_month_value, target_month_days, service)
+        move_event(event, date_context, target_date_option, service)
 
     if is_dry_run:
         print("(dry run) No events were modified")
