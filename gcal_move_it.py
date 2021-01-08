@@ -56,7 +56,7 @@ SCOPES = ['https://www.googleapis.com/auth/calendar.events']
 
 
 def usage():
-    print (__doc__)
+    print(__doc__)
 
 
 def parse_year_month_day(date_string):
@@ -320,11 +320,11 @@ def set_event_summary_via_service(event, clean_desc, service):
 
 
 def dump_desc(original_description, clean_desc):
-    print (">>-- FROM --<<")
-    print (original_description)
-    print (">>--  TO  --<<")
+    print(">>-- FROM --<<")
+    print(original_description)
+    print(">>--  TO  --<<")
     print(clean_desc)
-    print (">>-- ---- --<<")
+    print(">>-- ---- --<<")
     print()
 
 
@@ -353,12 +353,12 @@ def process_events_clean(filtered_events, service):
         if (clean_event(event, service)):
             events_cleaned += 1
 
-    print (f"{events_cleaned} events have a 'dirty' description")
+    print(f"{events_cleaned} events have a 'dirty' description")
 
     if is_dry_run:
-        print ("(dry run) No events were modified")
+        print("(dry run) No events were modified")
     else:
-        print (f"{events_cleaned} events were updated to have a clean description")
+        print(f"{events_cleaned} events were updated to have a clean description")
 
 
 def process_events_move(filtered_events, service):
@@ -375,9 +375,9 @@ def process_events_move(filtered_events, service):
         move_event(event, dest_month_value, dest_month_days, service)
 
     if is_dry_run:
-        print ("(dry run) No events were modified")
+        print("(dry run) No events were modified")
     else:
-        print (list_size_as_text(filtered_events) + " events were modified")
+        print(list_size_as_text(filtered_events) + " events were modified")
 
 
 def main():
@@ -393,8 +393,8 @@ def main():
     sorted_and_filtered = sorted(
         filtered_events, key=lambda event: event_start_date(event))
 
-    print ("Processing total of " + list_size_as_text(events) +
-           " events filtered down to " + list_size_as_text(filtered_events) + "...")
+    print("Processing total of " + list_size_as_text(events) +
+          " events filtered down to " + list_size_as_text(filtered_events) + "...")
 
     if (command == "clean"):
         process_events_clean(sorted_and_filtered, service)
