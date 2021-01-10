@@ -20,7 +20,7 @@ python gcal_move_it.py
 Usage: gcal_move_it.py clean <month 1..12> [options]
 
 # move:
-- Move non-recurring events from one month to the next month.
+- Move non-recurring events from one month to the next month. (exception: a recurring event that was manually moved IS included)
 - Only events that occurred before today are moved.
 
 Usage: gcal_move_it.py move <source month 1..12> [options]
@@ -68,7 +68,7 @@ Events must be:
 
 - all-day, for 1 day
 - not a timed event (is all-day)
-- not recurring
+- not recurring (except if was manually moved)
 
 Exceptions:
 

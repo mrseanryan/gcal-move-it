@@ -12,7 +12,7 @@ Uses the Google Calendar API to bulk process events:
 Usage: gcal_move_it.py clean <month 1..12> [options]
 
 # move:
-- Move non-recurring events from one month to the next month.
+- Move non-recurring events from one month to the next month. (exception: a recurring event that was manually moved IS included)
 - Only events that occurred before today are moved.
 
 Usage: gcal_move_it.py move <source month 1..12> [options]
@@ -154,7 +154,7 @@ def filter_event(event):
     # - following white and black lists
     # - all-day, for 1 day
     # - not a timed event (is all-day)
-    # - not recurring
+    # - not recurring (unless was manually moved)
     """
     if (not 'start' in event):
         return False
