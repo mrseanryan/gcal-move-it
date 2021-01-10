@@ -76,6 +76,26 @@ Exceptions:
 
 Besides that, the optional black and white lists are applied, as specified via options on the command line.
 
+# notes on prefixes
+
+A Google Calendar event can have a prefix added to its summary, to help filter via gcal-move-it.
+
+## standard prefixes
+
+| Prefix | Description         | Detail                                                                                                                                                                                                                                                     |
+| ------ | ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `[p]`  | `p`inned to weekday | If an event has the prefix `[p]` then it is considered as `p`inned to that day of the week. When the event is moved to the next month, the date will be adjusted to have the same day of the week. Note: the option `-targetdate` overrides this behavior. |
+
+## custom prefixes
+
+Together with the `blacklist` or `whitelist` options, you can use whatever custom prefixes or tags you like in your events. Below are some examples.
+
+| Prefix | Description            | Detail                                                                   |
+| ------ | ---------------------- | ------------------------------------------------------------------------ |
+| `k`    | O`K` meaning is 'done' | The event is done, so it will NOT be moved to next month                 |
+| `done` | Done                   | The event is done, so it will NOT be moved to next month                 |
+| `n/a`  | `N`ot `A`pplicable     | The event is no longer applicable, so it will NOT be moved to next month |
+
 # setup
 
 1. Get the credentials file

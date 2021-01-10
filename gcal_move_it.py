@@ -254,13 +254,13 @@ def move_event_to_via_service(event, target_date, service):
 
 
 def move_event_to(event, target_date, service, is_pinned_to_day):
-    suffix = ""
+    prefix = ""
     if (is_pinned_to_day):
         target_day_of_week = calendar.weekday(
             target_date.year, target_date.month, target_date.day)
-        suffix = f" [pinned to {calendar.day_name[target_day_of_week]}]"
+        prefix = f" [pinned to {calendar.day_name[target_day_of_week]}]"
 
-    print("--> " + date_to_string(target_date) + suffix)
+    print("--> " + date_to_string(target_date) + prefix)
     if not is_dry_run:
         move_event_to_via_service(event, target_date, service)
 

@@ -1,6 +1,6 @@
 ### Added
 
-- Add ability to pin events to a day of the week, with a [p] entry in the event description
+- Pin an event to a day of the week, by adding the prefix `[p]` to the summary. When the event is moved to the next month, the date will be adjusted to have the same day of the week.
 
 ## [1.4] - 8 January 2021
 
