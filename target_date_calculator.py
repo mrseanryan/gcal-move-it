@@ -19,46 +19,33 @@ def calculate_day_of_month_for_source_date(source_date, target_year, target_mont
     return target_day
 
 
-def adjust_target_to_pinned_day(target_date, source_date):
-    # TODO try to simplify!
-
-    # 0-6 ~ Mon-Sun
-    source_day_of_week = weekday(
-        source_date.year, source_date.month, source_date.day)
-
-    target_day_of_week = weekday(
-        target_date.year, target_date.month, target_date.day)
-
-    if (target_day_of_week == source_day_of_week):
-        return target_date
-
-    # special cases: first, last for that day, within the month
-    is_first = source_date.day <= 7
-    is_last = date_utils.days_in_month(
-        source_date.year, source_date.month) - source_date.day < 7
-
+def adjust_target_to_pinned_day_first_of_month(target_date, source_day_of_week):
     target_day = 1
     day_of_week_target_month_1st = weekday(
         target_date.year, target_date.month, target_day)
 
-    if (is_first):
-        if (source_day_of_week >= day_of_week_target_month_1st):
-            target_day = source_day_of_week - day_of_week_target_month_1st + 1
-        else:
-            target_day = target_day + 7 - (day_of_week_target_month_1st -
-                                           source_day_of_week)
-        return date(target_date.year, target_date.month, target_day)
+    if (source_day_of_week >= day_of_week_target_month_1st):
+        target_day = source_day_of_week - day_of_week_target_month_1st + 1
+    else:
+        target_day = target_day + 7 - (day_of_week_target_month_1st -
+                                       source_day_of_week)
+    return date(target_date.year, target_date.month, target_day)
 
+
+def adjust_target_to_pinned_day_last_of_month(target_date, source_day_of_week):
     days_in_target_month = date_utils.days_in_month(
         target_date.year, target_date.month)
+    target_day = days_in_target_month
+    while (weekday(target_date.year, target_date.month, target_day) != source_day_of_week):
+        target_day += -1
+    return date(target_date.year, target_date.month, target_day)
 
-    if (is_last):
-        target_day = days_in_target_month
-        while (weekday(target_date.year, target_date.month, target_day) != source_day_of_week):
-            target_day += -1
-        return date(target_date.year, target_date.month, target_day)
 
-    # else adjust to the nearest date with that day, handling month overruns:
+def adjust_target_to_pinned_day_handling_month_bounds(target_date, source_day_of_week):
+    days_in_target_month = date_utils.days_in_month(
+        target_date.year, target_date.month)
+    target_day_of_week = weekday(
+        target_date.year, target_date.month, target_date.day)
     diff = target_day_of_week - source_day_of_week
     target_day = target_date.day
     if (diff > 0):
@@ -69,11 +56,36 @@ def adjust_target_to_pinned_day(target_date, source_date):
             if (target_day > days_in_target_month):
                 target_day = target_date.day - diff
     else:
-        target_day += -diff
+        target_day -= diff
         if (target_day > days_in_target_month):
             target_day = target_date.day + (7 + diff)
 
     return date(target_date.year, target_date.month, target_day)
+
+
+def adjust_target_to_pinned_day(target_date, source_date):
+    # 0-6 ~ Mon-Sun
+    source_day_of_week = weekday(
+        source_date.year, source_date.month, source_date.day)
+
+    target_day_of_week = weekday(
+        target_date.year, target_date.month, target_date.day)
+
+    if (target_day_of_week == source_day_of_week):
+        return target_date
+
+    # special case: first for that day within the month
+    is_first = source_date.day <= 7
+    if (is_first):
+        return adjust_target_to_pinned_day_first_of_month(target_date, source_day_of_week)
+
+    # special case: last for that day within the month
+    is_last = date_utils.days_in_month(
+        source_date.year, source_date.month) - source_date.day < 7
+    if (is_last):
+        return adjust_target_to_pinned_day_last_of_month(target_date, source_day_of_week)
+
+    return adjust_target_to_pinned_day_handling_month_bounds(target_date, source_day_of_week)
 
 
 def calculate_target_date(date_context, source_date, is_pinned_to_day, target_date_option):
