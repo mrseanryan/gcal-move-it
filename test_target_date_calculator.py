@@ -19,6 +19,7 @@ class TestTargetDateCalculator(unittest.TestCase):
          date(2020, 12, 1), None, date(2021, 1, 5), True),
         ('Dec to Jan - pinned to 1st Tuesday', 2021, 1,
          date(2020, 12, 1), None, date(2021, 1, 5), True),
+
         ('Dec to Jan - pinned to last Wednesday', 2020, 12,
          date(2020, 12, 30), None, date(2021, 1, 27), True),
         ('Dec to Jan - pinned to last Wednesday', 2021, 1,
@@ -58,10 +59,12 @@ class TestTargetDateCalculator(unittest.TestCase):
          date(2021, 1, 11), None, date(2021, 2, 8), True),
         ('Jan to Feb - pinned - 2nd Mon', 2021, 2,
          date(2021, 1, 11), None, date(2021, 2, 8), True),
+
         ('Jan to Feb - pinned - 4th Mon', 2021, 1,
-         date(2021, 1, 25), None, date(2021, 2, 21), True),
+         date(2021, 1, 25), None, date(2021, 2, 22), True),
+
         ('Jan to Feb - pinned - 4th Mon', 2021, 2,
-         date(2021, 1, 25), None, date(2021, 2, 21), True),
+         date(2021, 1, 25), None, date(2021, 2, 22), True),
 
         # Jan to Feb - NOT pinned
         ('Jan to Feb - pinned - last Sat', 2021, 1,
@@ -76,13 +79,14 @@ class TestTargetDateCalculator(unittest.TestCase):
          date(2021, 1, 25), None, date(2021, 2, 25), False),
         ('Jan to Feb - pinned - 4th Mon', 2021, 2,
          date(2021, 1, 25), None, date(2021, 2, 25), False),
+
+        # xxx tests for target_date_option
     ])
-    def test_calculate_target_date(self, msg, this_year, this_month, source_date, target_date_option, expected_target_date, is_pinned_to_day):
+    def test_calculate_target_date(self, msg, this_year, this_month, source_date, target_date_option, expected_target_date, is_pinned_to_day=False):
         # Act
         today = todays.TodayMock(this_year, this_month)
         date_context = date_utils.DateContext(today, source_date.month)
 
-        # xxx is_pinned_to_day
         actual_target_date = target_date_calculator.calculate_target_date(
-            date_context, source_date, target_date_option)
+            date_context, source_date, is_pinned_to_day, target_date_option)
         self.assertEqual(expected_target_date, actual_target_date, msg)

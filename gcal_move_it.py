@@ -36,11 +36,14 @@ from __future__ import print_function
 from babel.dates import format_date
 from optparse import OptionParser
 from functools import reduce
+
+import calendar
 import getopt
 import datetime
 import pickle
 import os.path
 import sys
+
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
@@ -250,8 +253,14 @@ def move_event_to_via_service(event, target_date, service):
     update_event_via_service(event, service)
 
 
-def move_event_to(event, target_date, service):
-    print("--> " + date_to_string(target_date))
+def move_event_to(event, target_date, service, is_pinned_to_day):
+    suffix = ""
+    if (is_pinned_to_day):
+        target_day_of_week = calendar.weekday(
+            target_date.year, target_date.month, target_date.day)
+        suffix = f" [pinned to {calendar.day_name[target_day_of_week]}]"
+
+    print("--> " + date_to_string(target_date) + suffix)
     if not is_dry_run:
         move_event_to_via_service(event, target_date, service)
 
@@ -259,10 +268,13 @@ def move_event_to(event, target_date, service):
 def move_event(event, date_context, target_date_option, service):
     source_date = date_utils.event_start_date(event)
 
-    target_date = target_date_calculator.calculate_target_date(
-        date_context, source_date, target_date_option)
+    is_pinned_to_day = (event['summary'].startswith(
+        '[p]') or event['summary'].startswith('[pinned]'))
 
-    move_event_to(event, target_date, service)
+    target_date = target_date_calculator.calculate_target_date(
+        date_context, source_date, is_pinned_to_day, target_date_option)
+
+    move_event_to(event, target_date, service, is_pinned_to_day)
 
 
 def ilen(iterable):
