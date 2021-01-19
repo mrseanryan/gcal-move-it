@@ -102,6 +102,17 @@ Together with the `blacklist` or `whitelist` options, you can use whatever custo
 
    Use the [Google Console](https://console.cloud.google.com/) to create a new project, and add the **Google Calendar API** to that project.
 
+   Option A
+
+   - Go to APIs & Services
+   - Create Credentials
+   - Select `OAuth 2.0 Client IDs`
+   - Select `Application Type` = `Desktop app`
+   - Type a suitable name (include the machine name)
+   - Download the credentials file
+
+   Option B
+
    To create the credentials file, add a service account. Download the key in JSON format (the UI can be tricky to use!).
 
    See the [Google documentation](https://cloud.google.com/docs/authentication/getting-started) for more details.
