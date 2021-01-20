@@ -132,6 +132,21 @@ So the file should be located at: `./credentials.json`
 pip install -r pip.config
 ```
 
+# libraries used
+
+gcal-move-it uses a few nice libraries:
+
+| Library | URL | Description |
+|---|---|---|
+| calendar | https://docs.python.org/3/library/calendar.html | For calendar operations like ‘get weekday for this date’ |
+| parameterized |  https://pypi.org/project/parameterized/ | Easily parameterize your unit tests |
+
+# tools used
+
+| Tool | URL | Description |
+|---|---|---|
+| pip | https://pypi.org/project/pip/ | pip used with a config file, makes it easy to restore a Python project on another machine (even between Windows and Mac!) |
+
 # references
 
 [Google Calendar API](https://developers.google.com/calendar/v3/reference/events/list)
