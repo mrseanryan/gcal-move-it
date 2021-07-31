@@ -37,6 +37,7 @@ from __future__ import print_function
 from babel.dates import format_date
 from optparse import OptionParser
 from functools import reduce
+from time import sleep
 
 import calendar
 import getopt
@@ -329,6 +330,7 @@ def process_events_clean(filtered_events, service):
               event['summary'])
         if (clean_event(event, service)):
             events_cleaned += 1
+        delay_to_avoid_rate_limit()
 
     print(f"{events_cleaned} events have a 'dirty' description")
 
@@ -348,6 +350,9 @@ def summarize_event(event):
         summary += ' (recurring, but moved)'
     return summary
 
+def delay_to_avoid_rate_limit():
+    if not is_dry_run:
+        sleep(0.1) # in seconds
 
 def process_events_move(filtered_events, service):
     for event in filtered_events:
@@ -358,6 +363,7 @@ def process_events_move(filtered_events, service):
         print(date_to_string(date_utils.event_start_date(event)),
               summarize_event(event))
         move_event(event, date_context, target_date_option, service)
+        delay_to_avoid_rate_limit()
 
     if is_dry_run:
         print("(dry run) No events were modified")
