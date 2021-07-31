@@ -26,11 +26,12 @@ Usage: gcal_move_it.py clean <month 1..12> [options]
 Usage: gcal_move_it.py move <source month 1..12> [options]
 
 The options are:
-[-b blacklist - Specify a blacklist to exclude some events]
-[-d dryrun - Perform a dry run, without actually modifying the calendar]
-[-h help]
-[-t targetdate - Specify an exact target date (instead of the default which is 'one month later')]
-[-w whitelist - Specify a whitelist to include only some events]
+[-b --blacklist - Specify a blacklist to exclude some events]
+[-d --dryrun - Perform a dry run, without actually modifying the calendar]
+[-h --help]
+[-s --skipMovedRecurring] - Skip events that are recurring but were manually moved
+[-t --targetdate - Specify an exact target date (instead of the default which is 'one month later')]
+[-w --whitelist - Specify a whitelist to include only some events]
 
 Examples:
 gcal_move_it.py clean 1
@@ -136,16 +137,16 @@ pip install -r pip.config
 
 gcal-move-it uses a few nice libraries:
 
-| Library | URL | Description |
-|---|---|---|
-| calendar | https://docs.python.org/3/library/calendar.html | For calendar operations like ‘get weekday for this date’ |
-| parameterized |  https://pypi.org/project/parameterized/ | Easily parameterize your unit tests |
+| Library       | URL                                             | Description                                              |
+| ------------- | ----------------------------------------------- | -------------------------------------------------------- |
+| calendar      | https://docs.python.org/3/library/calendar.html | For calendar operations like ‘get weekday for this date’ |
+| parameterized | https://pypi.org/project/parameterized/         | Easily parameterize your unit tests                      |
 
 # tools used
 
-| Tool | URL | Description |
-|---|---|---|
-| pip | https://pypi.org/project/pip/ | pip used with a config file, makes it easy to restore a Python project on another machine (even between Windows and Mac!) |
+| Tool | URL                           | Description                                                                                                               |
+| ---- | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| pip  | https://pypi.org/project/pip/ | pip used with a config file, makes it easy to restore a Python project on another machine (even between Windows and Mac!) |
 
 # references
 

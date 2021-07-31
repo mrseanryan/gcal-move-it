@@ -18,11 +18,12 @@ Usage: gcal_move_it.py clean <month 1..12> [options]
 Usage: gcal_move_it.py move <source month 1..12> [options]
 
 The options are:
-[-b blacklist - Specify a blacklist to exclude some events]
-[-d dryrun - Perform a dry run, without actually modifying the calendar]
-[-h help]
-[-t targetdate - Specify an exact target date (instead of the default which is 'one month later')]
-[-w whitelist - Specify a whitelist to include only some events]
+[-b --blacklist - Specify a blacklist to exclude some events]
+[-d --dryrun - Perform a dry run, without actually modifying the calendar]
+[-h --help]
+[-s --skipMovedRecurring] - Skip events that are recurring but were manually moved
+[-t --targetdate - Specify an exact target date (instead of the default which is 'one month later')]
+[-w --whitelist - Specify a whitelist to include only some events]
 
 Examples:
 gcal_move_it.py clean 1
@@ -75,6 +76,8 @@ parser.add_option('-b', '--blacklist', dest='blacklist', default="",
 parser.add_option('-d', '--dryrun', dest='is_dry_run', action='store_const',
                   const=True, default=False,
                   help='Perform a dry run: do not modify the calendar')
+parser.add_option('-s', '--skipMovedRecurring', dest='skip_moved_recurring', action='store_const', const=True, default=False,
+                  help='Skip events that are recurring but were manually moved')
 parser.add_option('-t', '--targetdate', dest='target_date', default='',
                   help='Move to this date (instead of adding 1 month). Format: yyyy-mm-dd')
 parser.add_option('-w', '--whitelist', dest='whitelist', default="",
@@ -87,6 +90,7 @@ if (len(args) != 2):
 
 blacklist = split_exlude_empty(options.blacklist, ';')
 is_dry_run = options.is_dry_run
+skip_moved_recurring = options.skip_moved_recurring
 command = args[0]
 source_month_index = int(args[1])
 target_date_option = None
@@ -102,7 +106,7 @@ is_move = command == 'move'
 def is_multi_day(event):
     if ('date' in event['start'] and
             'date' in event['end']
-            ):
+        ):
         start_date = date_utils.event_start_date(event)
         end_date = date_utils.parse_year_month_day(event['end']['date'])
         delta = end_date - start_date
@@ -163,6 +167,7 @@ def filter_event(event):
     return (('start' in event) and  # else is multi-day event, which we skip
             # note: not checking for 'recurringEventId' since if the event was manually moved, then it probably got forgotten, and SHOULD be moved to next month
             not ('recurrence' in event) and
+            (skip_moved_recurring or not(is_moved_recurring_event(event))) and
             summary_passes_blacklist(summary) and
             summary_passes_whitelist(summary) and
             not is_multi_day(event) and
@@ -333,9 +338,13 @@ def process_events_clean(filtered_events, service):
         print(f"{events_cleaned} events were updated to have a clean description")
 
 
+def is_moved_recurring_event(event):
+    return ('recurringEventId' in event)
+
+
 def summarize_event(event):
     summary = event['summary']
-    if ('recurringEventId' in event):
+    if is_moved_recurring_event(event):
         summary += ' (recurring, but moved)'
     return summary
 
