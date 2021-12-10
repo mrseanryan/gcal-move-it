@@ -1,4 +1,4 @@
-# gcal_move_it README
+# :calendar: gcal_move_it README
 
 A command line tool to bulk process events in a Google Calendar:
 
