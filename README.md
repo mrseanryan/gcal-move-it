@@ -10,7 +10,7 @@ A command line tool to bulk process events in a Google Calendar:
 See the built-in help:
 
 ```
-python gcal_move_it.py
+poetry run python gcal_move_it.py
 ```
 
 ```
@@ -44,19 +44,19 @@ gcal_move_it.py move 1 -w subject_1;subject_2 -t 2021-01-13
 Try a dry run, that does not modify your calendar:
 
 ```
-python gcal_move_it.py move 1 -d
+poetry run python gcal_move_it.py move 1 -d
 ```
 
 Move events from March to the next month (April):
 
 ```
-python gcal_move_it.py move 3
+poetry run python gcal_move_it.py move 3
 ```
 
 Clean events in February:
 
 ```
-python gcal_move_it.py clean 2
+poetry run python gcal_move_it.py clean 2
 ```
 
 # notes on filtering
@@ -122,15 +122,15 @@ Together with the `blacklist` or `whitelist` options, you can use whatever custo
 
 So the file should be located at: `./credentials.json`
 
-3. Install Python 3.7.x and pip
+3. Install Python 3.11.x and poetry
 
-- Python 3.7.9 or later
-- pip 20.2.2 or later
+- Python 3.1.x or later
+- Poetry 1.8.5 or later
 
 4. Install dependencies
 
 ```
-pip install -r pip.config
+poetry install
 ```
 
 # libraries used
