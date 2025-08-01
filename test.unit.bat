@@ -1,1 +1,1 @@
-python -m unittest  
+poetry run python -m unittest

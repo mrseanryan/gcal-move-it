@@ -1,1 +1,1 @@
-python -m unittest test_target_date_calculator  
+poetry run python -m unittest test_target_date_calculator
