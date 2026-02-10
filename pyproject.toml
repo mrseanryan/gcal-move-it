@@ -7,7 +7,7 @@ license = "MIT"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "~3.11"
 babel = "~=2.8.0"
 cachetools = "~=4.1.1"
 certifi = "~=2020.6.20"
@@ -33,7 +33,7 @@ six = "~=1.15.0"
 uritemplate = "~=3.0.1"
 urllib3 = "~=1.25.10"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 parameterized = "~=0.7.5"
 
 [build-system]
