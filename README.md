@@ -99,6 +99,10 @@ Together with the `blacklist` or `whitelist` options, you can use whatever custo
 
 # setup
 
+0. Install Poetry
+
+- see https://python-poetry.org/docs/
+
 1. Get the credentials file
 
    Use the [Google Console](https://console.cloud.google.com/) to create a new project, and add the **Google Calendar API** to that project.
@@ -124,12 +128,13 @@ So the file should be located at: `./credentials.json`
 
 3. Install Python 3.11.x and poetry
 
-- Python 3.1.x or later
+- Python 3.11.x
 - Poetry 1.8.5 or later
 
 4. Install dependencies
 
 ```
+poetry env use py -3.11
 poetry install
 ```
 
