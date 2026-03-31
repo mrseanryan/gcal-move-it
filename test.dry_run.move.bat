@@ -1,1 +1,1 @@
-poetry run python gcal_move_it.py move 8 -d
+uv run python gcal_move_it.py move 8 -d

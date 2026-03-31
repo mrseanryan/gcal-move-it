@@ -10,7 +10,7 @@ A command line tool to bulk process events in a Google Calendar:
 See the built-in help:
 
 ```
-poetry run python gcal_move_it.py
+uv run python gcal_move_it.py
 ```
 
 ```
@@ -44,19 +44,19 @@ gcal_move_it.py move 1 -w subject_1;subject_2 -t 2021-01-13
 Try a dry run, that does not modify your calendar:
 
 ```
-poetry run python gcal_move_it.py move 1 -d
+uv run python gcal_move_it.py move 1 -d
 ```
 
 Move events from March to the next month (April):
 
 ```
-poetry run python gcal_move_it.py move 3
+uv run python gcal_move_it.py move 3
 ```
 
 Clean events in February:
 
 ```
-poetry run python gcal_move_it.py clean 2
+uv run python gcal_move_it.py clean 2
 ```
 
 # notes on filtering
@@ -99,9 +99,9 @@ Together with the `blacklist` or `whitelist` options, you can use whatever custo
 
 # setup
 
-0. Install Poetry
+0. Install uv
 
-- see https://python-poetry.org/docs/
+- see https://docs.astral.sh/uv/
 
 1. Get the credentials file
 
@@ -126,16 +126,16 @@ Together with the `blacklist` or `whitelist` options, you can use whatever custo
 
 So the file should be located at: `./credentials.json`
 
-3. Install Python 3.11.x and poetry
+3. Install Python 3.11.x and uv
 
 - Python 3.11.x
-- Poetry 1.8.5 or later
+- uv (latest)
 
 4. Install dependencies
 
 ```
-poetry env use py -3.11
-poetry install
+uv python install 3.11
+uv sync
 ```
 
 # libraries used
