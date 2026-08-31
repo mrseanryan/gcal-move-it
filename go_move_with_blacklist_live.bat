@@ -2,4 +2,4 @@
 ECHO This is NOT a dry run! Press CTRL+C to cancel
 PAUSE
 
-uv run python gcal_move_it.py move -b "^k ;^cancelled ;^done ;^n/a;=hol;^ill" %1 %2 %3 %4 %5
+uv run python gcal_move_it.py move -b "^k ;^cancelled ;^done ;^n/a;^fail;=hol;^ill" %1 %2 %3 %4 %5
